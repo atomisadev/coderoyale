@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "dgSpecHash": "aPodfzQAH+g=",
+  "success": true,
+  "projectFilePath": "/home/ubuntu/coderoyale/apps/api/MyCsApi.csproj",
+  "expectedPackageFiles": [
+    "/home/ubuntu/.nuget/packages/microsoft.aspnetcore.openapi/9.0.4/microsoft.aspnetcore.openapi.9.0.4.nupkg.sha512",
+    "/home/ubuntu/.nuget/packages/microsoft.openapi/1.6.17/microsoft.openapi.1.6.17.nupkg.sha512"
+  ],
+  "logs": []
+}
