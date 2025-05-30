@@ -35,4 +35,4 @@ app.MapControllers();
 
 app.UseWebSockets();
 
-
+await app.RunAsync();
