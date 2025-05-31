@@ -1,26 +1,25 @@
 {
   "format": 1,
   "restore": {
-    "/home/mohit/coderoyale/apps/api/MyCsApi.csproj": {}
+    "/home/ubuntu/coderoyalereal/apps/api/MyCsApi.csproj": {}
   },
   "projects": {
-    "/home/mohit/coderoyale/apps/api/MyCsApi.csproj": {
+    "/home/ubuntu/coderoyalereal/apps/api/MyCsApi.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/home/mohit/coderoyale/apps/api/MyCsApi.csproj",
+        "projectUniqueName": "/home/ubuntu/coderoyalereal/apps/api/MyCsApi.csproj",
         "projectName": "MyCsApi",
-        "projectPath": "/home/mohit/coderoyale/apps/api/MyCsApi.csproj",
-        "packagesPath": "/home/mohit/.nuget/packages/",
-        "outputPath": "/home/mohit/coderoyale/apps/api/obj/",
+        "projectPath": "/home/ubuntu/coderoyalereal/apps/api/MyCsApi.csproj",
+        "packagesPath": "/home/ubuntu/.nuget/packages/",
+        "outputPath": "/home/ubuntu/coderoyalereal/apps/api/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "/home/mohit/.nuget/NuGet/NuGet.Config"
+          "/home/ubuntu/.nuget/NuGet/NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net9.0"
         ],
         "sources": {
-          "/usr/lib/dotnet/library-packs": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -39,7 +38,7 @@
           "auditLevel": "low",
           "auditMode": "direct"
         },
-        "SdkAnalysisLevel": "9.0.100"
+        "SdkAnalysisLevel": "9.0.200"
       },
       "frameworks": {
         "net9.0": {
@@ -69,7 +68,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "/usr/lib/dotnet/sdk/9.0.106/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "/home/ubuntu/.dotnet/sdk/9.0.203/PortableRuntimeIdentifierGraph.json"
         }
       }
     }

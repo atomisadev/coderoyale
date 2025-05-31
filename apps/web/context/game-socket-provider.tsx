@@ -218,6 +218,24 @@ export const GameWebSocketProvider: React.FC<{ children: React.ReactNode }> = ({
             setTimeRemaining(null);
             console.log("Problem timeout received from server");
             break;
+          case "damage":
+          case "heal":
+          case "defend":
+            // Handle card effect responses
+            console.log("Card effect received:", message);
+            if (
+              message.payload?.playerId &&
+              message.payload?.hp !== undefined
+            ) {
+              setPlayersInGame((prevPlayers) =>
+                prevPlayers.map((player) =>
+                  player.id === message.payload.playerId
+                    ? { ...player, hp: message.payload.hp }
+                    : player
+                )
+              );
+            }
+            break;
           default:
             console.warn("Unhandled WebSocket message type:", message.type);
         }
@@ -261,13 +279,29 @@ export const GameWebSocketProvider: React.FC<{ children: React.ReactNode }> = ({
     };
   }, [connect]);
 
+  // ...existing code...
+
   const sendMessage = (type: string, payload: any) => {
+    console.log("Attempting to send message:", {
+      type,
+      payload,
+      readyState: socketRef.current?.readyState,
+    });
+
     if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
       const message = JSON.stringify({ type, payload });
       console.log("Sending WebSocket message:", message);
-      socketRef.current.send(message);
+      try {
+        socketRef.current.send(message);
+      } catch (error) {
+        console.error("Error sending WebSocket message:", error);
+        setError("Failed to send message to server.");
+      }
     } else {
-      console.error("WebSocket is not connected.");
+      console.error(
+        "WebSocket is not connected. ReadyState:",
+        socketRef.current?.readyState
+      );
       setError(
         "Cannot send message: WebSocket is not connected. Please wait or try reconnecting."
       );
@@ -278,6 +312,7 @@ export const GameWebSocketProvider: React.FC<{ children: React.ReactNode }> = ({
         console.log(
           "Attempting to reconnect due to send message on closed socket..."
         );
+        connect(); // Try to reconnect
       }
     }
   };
