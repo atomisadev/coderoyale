@@ -1,4 +1,3 @@
-// apps/web/components/lobby.tsx
 "use client";
 
 import React, { useState, useEffect } from "react";
@@ -6,7 +5,15 @@ import { useGameWebSocket, PlayerInfo } from "../context/game-socket-provider";
 import { Button } from "@/components/ui/button";
 
 export const Lobby: React.FC = () => {
-  const { roomCode, playersInLobby, playerName, playerId } = useGameWebSocket();
+  const {
+    roomCode,
+    playersInLobby,
+    playerName,
+    playerId,
+    hostPlayerId,
+    sendMessage,
+    isGameStarted,
+  } = useGameWebSocket();
   const [shareableLink, setShareableLink] = useState("");
   const [linkCopied, setLinkCopied] = useState(false);
 
@@ -15,6 +22,10 @@ export const Lobby: React.FC = () => {
       setShareableLink(`${window.location.origin}/?roomCode=${roomCode}`);
     }
   }, [roomCode]);
+
+  if (isGameStarted) {
+    return null;
+  }
 
   if (!roomCode) {
     return <div>Error: Not in a room.</div>;
@@ -34,6 +45,12 @@ export const Lobby: React.FC = () => {
       alert("Clipboard API not available. Please copy the link manually.");
     }
   };
+
+  const handleStartGame = () => {
+    sendMessage("startGame", {});
+  };
+
+  const isHost = playerId === hostPlayerId;
 
   return (
     <div
@@ -98,6 +115,16 @@ export const Lobby: React.FC = () => {
           </li>
         ))}
       </ul>
+
+      {isHost && playersInLobby.length >= 1 && (
+        <Button
+          onClick={handleStartGame}
+          style={{ marginTop: "20px" }}
+          disabled={isGameStarted}
+        >
+          Start Game
+        </Button>
+      )}
     </div>
   );
 };

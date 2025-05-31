@@ -1,4 +1,3 @@
-// apps/web/components/create-join-room.tsx
 "use client";
 
 import React, { useState, useEffect } from "react";

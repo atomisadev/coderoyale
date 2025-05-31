@@ -41,3 +41,4 @@ apps/api/obj/
 apps/api/bin/
 *.ico
 *.lock
+*.woff

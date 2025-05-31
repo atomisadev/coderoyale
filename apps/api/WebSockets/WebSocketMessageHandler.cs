@@ -28,7 +28,7 @@ namespace MyCsApi.WebSockets
 
         public async Task HandleWebSocketAsync(WebSocket webSocket)
         {
-            var playerId = Guid.NewGuid().ToString(); 
+            var playerId = Guid.NewGuid().ToString();
             _logger.LogInformation($"WebSocket connection established: {playerId}");
 
             var buffer = new byte[1024 * 4];
@@ -63,6 +63,9 @@ namespace MyCsApi.WebSockets
                                 var joinRoomMsg = JsonSerializer.Deserialize<JoinRoomClientMessage>(messageJson, _jsonSerializerOptions);
                                 if (joinRoomMsg != null)
                                     await _roomManager.JoinRoomAsync(webSocket, playerId, joinRoomMsg.Payload.PlayerName, joinRoomMsg.Payload.RoomCode);
+                                break;
+                            case "startGame":
+                                await _roomManager.StartGameAsync(playerId);
                                 break;
                             default:
                                 _logger.LogWarning($"Unknown message type from {playerId}: {baseMessage.Type}");

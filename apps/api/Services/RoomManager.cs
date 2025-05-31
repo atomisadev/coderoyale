@@ -46,13 +46,13 @@ namespace MyCsApi.Services
 
             var gameId = Guid.NewGuid().ToString();
             var newPlayer = new Player(playerId, playerName, webSocket, roomCode);
-            var room = new GameRoom(roomCode, gameId);
+            var room = new GameRoom(roomCode, gameId, playerId);
             room.AddPlayer(newPlayer);
 
             if (_rooms.TryAdd(roomCode, room) && _players.TryAdd(playerId, newPlayer))
             {
                 _logger.LogInformation($"Room {roomCode} created by player {playerName} ({playerId}). GameID: {gameId}");
-                var response = new RoomCreatedServerMessage(roomCode, playerId, playerName, gameId);
+                var response = new RoomCreatedServerMessage(roomCode, playerId, playerName, gameId, playerId);
                 await SendMessageAsync(webSocket, response);
             }
             else
@@ -99,12 +99,50 @@ namespace MyCsApi.Services
                 playerId,
                 playerName,
                 room.GameId,
-                room.Players.Where(p => p.PlayerId != playerId).Select(p => new PlayerInfo(p.PlayerId, p.Name)).ToList()
+                room.Players.Where(p => p.PlayerId != playerId).Select(p => new PlayerInfo(p.PlayerId, p.Name)).ToList(),
+                room.HostPlayerId
             );
             await SendMessageAsync(webSocket, joinSuccessResponse);
 
             var playerJoinedLobbyMessage = new PlayerJoinedLobbyServerMessage(playerId, playerName);
             await BroadcastMessageToRoomAsync(roomCode, playerJoinedLobbyMessage, playerId);
+        }
+
+        public async Task StartGameAsync(string playerId)
+        {
+            if (!_players.TryGetValue(playerId, out var requestingPlayer))
+            {
+                _logger.LogWarning($"StartGameAsync: Player {playerId} not found.");
+                return;
+            }
+
+            if (!_rooms.TryGetValue(requestingPlayer.CurrentRoomCode, out var room))
+            {
+                _logger.LogWarning($"StartGameAsync: Room {requestingPlayer.CurrentRoomCode} not found for player {playerId}.");
+                await SendMessageAsync(requestingPlayer.Socket, new JoinFailedServerMessage("Room not found.")); // Or a more specific error
+                return;
+            }
+
+            if (room.HostPlayerId != playerId)
+            {
+                _logger.LogWarning($"Player {playerId} attempted to start game in room {room.RoomCode} but is not the host.");
+                await SendMessageAsync(requestingPlayer.Socket, new JoinFailedServerMessage("Only the host can start the game."));
+                return;
+            }
+
+            if (room.GameState != "Lobby")
+            {
+                _logger.LogInformation($"Game in room {room.RoomCode} has already started or finished.");
+                await SendMessageAsync(requestingPlayer.Socket, new JoinFailedServerMessage($"Game is already {room.GameState}."));
+                return;
+            }
+
+            room.GameState = "InProgress";
+            _logger.LogInformation($"Game started in room {room.RoomCode} by host {playerId}");
+
+            var playersInGame = room.Players.Select(p => new PlayerInfo(p.PlayerId, p.Name)).ToList();
+            var gameStartedMessage = new GameStartedServerMessage(playersInGame);
+            await BroadcastMessageToRoomAsync(room.RoomCode, gameStartedMessage);
         }
 
         public async Task PlayerDisconnectedAsync(string playerId, WebSocket webSocket)

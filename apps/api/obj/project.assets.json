@@ -75,19 +75,19 @@
     ]
   },
   "packageFolders": {
-    "/home/xriiitox/.nuget/packages/": {}
+    "/home/ubuntu/.nuget/packages/": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "/home/xriiitox/Documents/Programming/coderoyale-private/apps/api/MyCsApi.csproj",
+      "projectUniqueName": "/home/ubuntu/coderoyalereal/apps/api/MyCsApi.csproj",
       "projectName": "MyCsApi",
-      "projectPath": "/home/xriiitox/Documents/Programming/coderoyale-private/apps/api/MyCsApi.csproj",
-      "packagesPath": "/home/xriiitox/.nuget/packages/",
-      "outputPath": "/home/xriiitox/Documents/Programming/coderoyale-private/apps/api/obj/",
+      "projectPath": "/home/ubuntu/coderoyalereal/apps/api/MyCsApi.csproj",
+      "packagesPath": "/home/ubuntu/.nuget/packages/",
+      "outputPath": "/home/ubuntu/coderoyalereal/apps/api/obj/",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "/home/xriiitox/.nuget/NuGet/NuGet.Config"
+        "/home/ubuntu/.nuget/NuGet/NuGet.Config"
       ],
       "originalTargetFrameworks": [
         "net9.0"
@@ -111,7 +111,7 @@
         "auditLevel": "low",
         "auditMode": "direct"
       },
-      "SdkAnalysisLevel": "9.0.100"
+      "SdkAnalysisLevel": "9.0.200"
     },
     "frameworks": {
       "net9.0": {
@@ -133,12 +133,6 @@
         ],
         "assetTargetFallback": true,
         "warn": true,
-        "downloadDependencies": [
-          {
-            "name": "Microsoft.AspNetCore.App.Ref",
-            "version": "[9.0.4, 9.0.4]"
-          }
-        ],
         "frameworkReferences": {
           "Microsoft.AspNetCore.App": {
             "privateAssets": "none"
@@ -147,7 +141,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "/usr/share/dotnet/sdk/9.0.105/PortableRuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "/home/ubuntu/.dotnet/sdk/9.0.203/PortableRuntimeIdentifierGraph.json"
       }
     }
   }
