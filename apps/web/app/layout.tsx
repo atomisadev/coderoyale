@@ -25,7 +25,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${geistSans.variable} ${geistMono.variable}`}>
+      <body className={`${geistSans.variable} ${geistMono.variable} bg-[#161616]`}>
         <TanstackProvider>
           <GameWebSocketProvider>{children}</GameWebSocketProvider>
         </TanstackProvider>

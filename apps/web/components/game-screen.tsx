@@ -295,10 +295,10 @@ export const GameScreen: React.FC = () => {
   };
 
   return (
-    <div className="h-screen w-screen grid grid-cols-2 grid-rows-2 gap-4 bg-[#060E25] bg-[url(/bg.png)] p-2 text-white">
-      <Card className="flex flex-col bg-[#060E25aa] overflow-hidden p-6 rounded-lg">
-        <CardHeader className="pb-3 flex-shrink-0">
-          <CardTitle className="text-lg p-2">
+    <div className="h-screen w-screen grid grid-cols-2 grid-rows-2 gap-4 p-2 text-white">
+        <Card className="flex flex-col bg-[#1B1B1Baa] border boder-1px border-[#3D3D3D]  overflow-hidden p-6 rounded-lg">
+          <CardHeader className="pb-3 flex-shrink-0 flex-row flex justify-between">
+            <CardTitle className="text-lg p-2 text-white">
             {currentProblem?.title || "Loading Problem..."}
           </CardTitle>
           {timeRemaining !== null && (

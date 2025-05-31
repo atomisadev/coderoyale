@@ -64,31 +64,31 @@ export const CreateJoinRoom: React.FC<CreateJoinRoomProps> = ({
 
   return (
     <div
-      className="flex flex-col bg-[url(/bg.png)] bg-center items-center h-screen w-screen">
-      <Image src='/logo.png' alt="" width={300} height={300} className="mt-20"/>
+      className="flex flex-col bg-[#161616] bg-center items-center h-screen w-screen">
+      <Image src='/logo2.png' alt="" width={300} height={300} className="mt-12" />
       <div className="flex flex-row gap-6 h-full w-full justify-center items-center">
-        <div className="w-1/4 h-[55vh] text-center bg-[url(/card.png)] bg-no-repeat bg-contain bg-center flex flex-col">
-          <div>
-            <label htmlFor="playerName" className="w-full p-20">Player Name: </label>
+        <div className="w-1/4 h-[55vh] text-center bg-[#1B1B1Baa] border boder-1px border-[#3D3D3D] rounded-lg flex flex-col text-white p-10 px-5">
+          <div className="flex-col flex">
+            <label htmlFor="playerName">Player Name: </label>
             <input
               id="playerName"
               type="text"
               value={playerName}
               onChange={(e) => setPlayerName(e.target.value)}
               placeholder="Enter your name"
+              className="placeholder-[#FFFFFFaa] p-2 m-2 bg-none text-center rounded-sm"
             />
           </div>
-          <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
-            <Button
-              onClick={handleCreateRoom}
-              disabled={createRoomMutation.isPending || !playerName.trim()}
-            >
-              {createRoomMutation.isPending ? "Creating..." : "Create Room"}
-            </Button>
-          </div>
+          <Button
+            onClick={handleCreateRoom}
+            disabled={createRoomMutation.isPending || !playerName.trim()}
+            className="bg-[#FFFFFF] text-[#000] m-2"
+          >
+            {createRoomMutation.isPending ? "Creating..." : "Create Room"}
 
-        </div>
-        <div className="w-1/4 h-[55vh] text-center bg-[url(/card.png)] bg-no-repeat bg-contain bg-center">
+          </Button>
+
+          <hr className="my-6"></hr>
           <p>Or Join an Existing Room:</p>
           <input
             type="text"
@@ -96,7 +96,7 @@ export const CreateJoinRoom: React.FC<CreateJoinRoomProps> = ({
             onChange={(e) => setInputRoomCode(e.target.value.toUpperCase())}
             placeholder="Enter Room Code"
             maxLength={5}
-            style={{ padding: "8px", marginRight: "10px", color: "black" }}
+            className="placeholder-[#FFFFFFaa] p-2 m-2 text-center rounded-sm"
           />
           <Button
             onClick={handleJoinRoom}
@@ -105,10 +105,12 @@ export const CreateJoinRoom: React.FC<CreateJoinRoomProps> = ({
               !playerName.trim() ||
               !inputRoomCode.trim()
             }
+            className="bg-[#FFFFFF] text-[#000] m-2"
+
           >
+
             {joinRoomMutation.isPending ? "Joining..." : "Join Room"}
           </Button></div>
-
       </div>
 
 

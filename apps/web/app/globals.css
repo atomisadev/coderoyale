@@ -112,6 +112,15 @@
   --sidebar-ring: oklch(0.552 0.016 285.938);
 }
 
+input:-webkit-autofill,
+input:-webkit-autofill:hover, 
+input:-webkit-autofill:focus, 
+input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 1000px #1f2937 inset !important; /* Tailwind's bg-gray-800 */
+  -webkit-text-fill-color: #ffffff !important; /* Tailwind's text-white */
+  transition: background-color 5000s ease-in-out 0s;
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;

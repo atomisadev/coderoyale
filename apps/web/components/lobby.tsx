@@ -56,12 +56,11 @@ export const Lobby: React.FC = () => {
     <div
       style={{
         padding: "20px",
-        border: "1px solid #ccc",
-        borderRadius: "8px",
         maxWidth: "500px",
         margin: "20px auto",
         textAlign: "center",
       }}
+      className="bg-[#1B1B1Baa] border boder-1px border-[#3D3D3D] text-white text-center mt-20"
     >
       <h2>Lobby</h2>
       <p>
@@ -75,23 +74,16 @@ export const Lobby: React.FC = () => {
       </p>
 
       {shareableLink && (
-        <div style={{ marginTop: "15px", marginBottom: "15px" }}>
+        <div style={{ marginTop: "15px", marginBottom: "15px" }} className="flex-col flex ">
           <p>Share this link to invite others:</p>
           <input
             type="text"
             value={shareableLink}
             readOnly
-            style={{
-              width: "80%",
-              padding: "8px",
-              marginRight: "10px",
-              color: "black",
-              border: "1px solid #ccc",
-              borderRadius: "4px",
-            }}
+            className="placeholder-[#FFFFFFaa] p-2 m-2 bg-none text-center rounded-sm"
             onFocus={(e) => e.target.select()}
           />
-          <Button onClick={handleCopyLink} variant="outline" size="sm">
+          <Button onClick={handleCopyLink} size="sm" className="text-black bg-white mx-4">
             {linkCopied ? "Copied!" : "Copy Link"}
           </Button>
         </div>
@@ -121,6 +113,7 @@ export const Lobby: React.FC = () => {
           onClick={handleStartGame}
           style={{ marginTop: "20px" }}
           disabled={isGameStarted}
+          className="bg-[#FFFFFF] text-[#000] m-2"
         >
           Start Game
         </Button>
