@@ -1,3 +1,12 @@
+using System.Net.WebSockets;
+using System.Text;
+using System.Text.Json;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using MyCsApi.Services;
+using MyCsApi.WebSockets;
+
 var builder = WebApplication.CreateBuilder(args);
 
 var myAllowAllOriginsPolicy = "_myAllowAllOriginsPolicy";
@@ -6,33 +15,49 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy(name: myAllowAllOriginsPolicy, policy =>
     {
-        policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod();
+        policy.WithOrigins("http://localhost:3000")
+              .AllowAnyHeader()
+              .AllowAnyMethod()
+              .AllowCredentials();
     });
 });
 
-// Add services to the container.
-
 builder.Services.AddControllers();
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddEndpointsApiExplorer();
+
+builder.Services.AddSingleton<RoomManager>();
+builder.Services.AddSingleton<WebSocketMessageHandler>();
 
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.MapOpenApi();
+    // app.MapOpenApi(); 
 }
 
 app.UseHttpsRedirection();
-
 app.UseCors(myAllowAllOriginsPolicy);
-
 app.UseAuthorization();
-
 app.MapControllers();
 
-app.UseWebSockets();
+app.UseWebSockets(new WebSocketOptions
+{
+    KeepAliveInterval = TimeSpan.FromSeconds(120),
+});
 
-await app.RunAsync();
+app.Map("/ws", async context =>
+{
+    if (context.WebSockets.IsWebSocketRequest)
+    {
+        using var webSocket = await context.WebSockets.AcceptWebSocketAsync();
+        var handler = app.Services.GetRequiredService<WebSocketMessageHandler>();
+        await handler.HandleWebSocketAsync(webSocket);
+    }
+    else
+    {
+        context.Response.StatusCode = StatusCodes.Status400BadRequest;
+    }
+});
+
+app.Run();
