@@ -26,6 +26,8 @@ namespace MyCsApi.Services
         private readonly ConcurrentDictionary<string, Player> _players = new();
         private readonly ILogger<RoomManager> _logger;
         private readonly IProblemService _problemService;
+        private readonly Dictionary<string, Timer> _problemTimers = new();
+        private readonly Random _random = new();
         private static readonly JsonSerializerOptions _jsonSerializerOptions = new()
         {
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase
@@ -173,12 +175,155 @@ namespace MyCsApi.Services
                     testCasesForMessage
                 );
                 await BroadcastMessageToRoomAsync(room.RoomCode, newProblemMessage);
+
+                StartProblemTimer(room.RoomCode);
+
                 _logger.LogInformation($"Sent problem '{problem.Title ?? "Untitled Problem"}' to room {room.RoomCode}");
             }
             else
             {
                 _logger.LogWarning($"Could not retrieve a problem for room {room.RoomCode}. No problem will be sent.");
             }
+        }
+
+        private void StartProblemTimer(string roomCode)
+        {
+            if (_problemTimers.ContainsKey(roomCode))
+            {
+                _problemTimers[roomCode].Dispose();
+                _problemTimers.Remove(roomCode);
+            }
+
+            var timer = new Timer(async _ => await HandleProblemTimeout(roomCode), null, TimeSpan.FromSeconds(10), Timeout.InfiniteTimeSpan);
+            _problemTimers[roomCode] = timer;
+        }
+
+        private async Task HandleProblemTimeout(string roomCode)
+        {
+            if (!_rooms.TryGetValue(roomCode, out var room)) return;
+
+            _logger.LogInformation($"Problem timeout in room {roomCode}");
+
+            var timeoutMessage = new ProblemTimeoutMessage();
+            await BroadcastMessageToRoomAsync(roomCode, timeoutMessage);
+
+            foreach (var player in room.Players)
+            {
+                player.HP = Math.Max(0, player.HP - 30);
+
+                var hpUpdateMessage = new
+                {
+                    type = "playerHpUpdate",
+                    payload = new { playerId = player.PlayerId, hp = player.HP }
+                };
+
+                await BroadcastMessageToRoomAsync(roomCode, hpUpdateMessage);
+
+                _logger.LogInformation($"Player {player.Name} lost 30 HP due to timeout, now has {player.HP} HP");
+
+                // await SendMessageAsync(player.Socket, hpUpdateMessage);
+            }
+
+            await Task.Delay(2000);
+
+            await StartNewProblem(roomCode);
+        }
+
+        public async Task HandlePlayerSolvedProblem(string playerId)
+        {
+            if (!_players.TryGetValue(playerId, out var player)) return;
+            if (!_rooms.TryGetValue(player.CurrentRoomCode, out var room)) return;
+
+            _logger.LogInformation($"Player {player.Name} solved problem in room {room.RoomCode}");
+
+            if (_problemTimers.ContainsKey(room.RoomCode))
+            {
+                _problemTimers[room.RoomCode].Dispose();
+                _problemTimers.Remove(room.RoomCode);
+            }
+
+            var card = GenerateRandomCard();
+            _logger.LogInformation($"Player {player.Name} received card: {card.Name} ({card.Rarity})");
+
+            var cardPayload = new { cardName = card.Name, rarity = card.Rarity, description = card.Description };
+            var cardMessage = new { type = "cardAwarded", payload = cardPayload };
+            await SendMessageAsync(player.Socket, cardMessage);
+
+            await Task.Delay(1000);
+
+            await StartNewProblem(room.RoomCode);
+        }
+
+        private async Task StartNewProblem(string roomCode)
+        {
+            if (!_rooms.TryGetValue(roomCode, out var room)) return;
+
+            var problem = _problemService.GetRandomProblem();
+            if (problem != null && problem.LastVersion?.Data != null)
+            {
+                var problemData = problem.LastVersion.Data;
+                var testCasesForMessage = problemData.TestCases ?? new List<ProblemTestCase>();
+                var newProblemMessage = new NewProblemServerMessage(
+                    problem.Title ?? "Untitled Problem",
+                    problemData.Statement ?? "No statement provided.",
+                    problemData.InputDescription ?? "No input description provided.",
+                    problemData.OutputDescription ?? "No output description provided.",
+                    problemData.Constraints,
+                    testCasesForMessage
+                );
+                await BroadcastMessageToRoomAsync(room.RoomCode, newProblemMessage);
+
+                // Start new timer
+                StartProblemTimer(room.RoomCode);
+
+                _logger.LogInformation($"Started new problem '{problem.Title ?? "Untitled Problem"}' in room {room.RoomCode}");
+            }
+        }
+
+        private Card GenerateRandomCard()
+        {
+            var rarityRoll = _random.NextDouble();
+            var rarity = rarityRoll switch
+            {
+                <= 0.65 => "Common",
+                <= 0.90 => "Uncommon",
+                _ => "Rare"
+            };
+
+            var cards = GetCardsByRarity(rarity);
+            var selectedCard = cards[_random.Next(cards.Length)];
+
+            return new Card
+            {
+                Name = selectedCard.Name,
+                Rarity = rarity,
+                Description = selectedCard.Description
+            };
+        }
+        private Card[] GetCardsByRarity(string rarity)
+        {
+            return rarity switch
+            {
+                "Common" => new[]
+                {
+                    new Card { Name = "Attack", Description = "Deal 20 damage to target player" },
+                    new Card { Name = "A Trip to the Casino", Description = "Deal 0-30 random damage" },
+                    new Card { Name = "Defend", Description = "Block next 15 damage received" },
+                    new Card { Name = "Shield", Description = "Negate next power-up directed at you" }
+                },
+                "Uncommon" => new[]
+                {
+                    new Card { Name = "Compiler Attack", Description = "Prevent target from submitting for 10 seconds" },
+                    new Card { Name = "Heal", Description = "Restore 15 HP" },
+                    new Card { Name = "Leak", Description = "Reveal next problem type to all players" },
+                    new Card { Name = "Vibe Coding", Description = "AI rewrites target's code badly" }
+                },
+                "Rare" => new[]
+                {
+                    new Card { Name = "Syntax Scramble", Description = "Replace target's code with random unicode temporarily" }
+                },
+                _ => new[] { new Card { Name = "Attack", Description = "Deal 20 damage" } }
+            };
         }
 
         public async Task PlayerDisconnectedAsync(string playerId, WebSocket webSocket)
@@ -227,5 +372,12 @@ namespace MyCsApi.Services
                 }
             }
         }
+    }
+
+    public class Card
+    {
+        public string Name { get; set; } = string.Empty;
+        public string Rarity { get; set; } = string.Empty;
+        public string Description { get; set; } = string.Empty;
     }
 }

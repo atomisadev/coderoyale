@@ -8,6 +8,7 @@ namespace MyCsApi.Models
         public string Name { get; set; }
         public WebSocket Socket { get; }
         public string CurrentRoomCode { get; set; }
+        public int HP { get; set; } = 100;
 
         public Player(string playerId, string name, WebSocket socket, string roomCode)
         {
@@ -15,6 +16,7 @@ namespace MyCsApi.Models
             Name = name;
             Socket = socket;
             CurrentRoomCode = roomCode;
+            HP = 100;
         }
     }
 }

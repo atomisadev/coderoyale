@@ -54,33 +54,38 @@ export const GameScreen: React.FC = () => {
     playerId,
     error: wsError,
     currentProblem,
-    // sendMessage, // We might not need sendMessage for code submission if using HTTP API
+    timeRemaining,
+    sendMessage, // We might not need sendMessage for code submission if using HTTP API
   } = useGameWebSocket();
+
+  console.log(timeRemaining);
 
   const [code, setCode] = useState<string>(
     "# Write your Python code here\n# Read input using input()\n# Print output using print()\n\nprint('Hello World!')"
   );
   const [submissionStatus, setSubmissionStatus] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
-  const [playersWithHP, setPlayersWithHP] = useState<PlayerWithHP[]>([]);
+  // const [playersWithHP, setPlayersWithHP] = useState<PlayerWithHP[]>([]);
   const [terminalOutput, setTerminalOutput] = useState<string[]>([]);
 
-  useEffect(() => {
-    if (playersInGame.length > 0) {
-      const playersHP = playersInGame.map((player) => ({
-        ...player,
-        hp: 100, // Or fetched from context if HP is managed there
-      }));
-      setPlayersWithHP(playersHP);
-    }
-  }, [playersInGame]);
+  const formatTime = (seconds: number) => {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`;
+  };
+
+  // useEffect(() => {
+  //   if (playersInGame.length > 0) {
+  //     const playersHP = playersInGame.map((player) => ({
+  //       ...player,
+  //       hp: player.hp ?? 100,
+  //     }));
+  //     setPlayersWithHP(playersHP);
+  //   }
+  // }, [playersInGame]);
 
   useEffect(() => {
-    // Set initial code if problem provides a template, or on new problem
     if (currentProblem?.title) {
-      // Reset for new problem
-      // You might want to add a default template to currentProblem or a specific field for it
-      // For now, just resetting to default Python starter.
       setCode(
         "# Write your Python code here\n# Read input using input()\n# Print output using print()\n\nprint('Hello World!')"
       );
@@ -248,6 +253,14 @@ export const GameScreen: React.FC = () => {
             <CardTitle className="text-lg p-2">
               {currentProblem?.title || "Loading Problem..."}
             </CardTitle>
+            {timeRemaining !== null && (
+              <Badge
+                variant={timeRemaining <= 60 ? "destructive" : "secondary"}
+                className="text-lg px-3 py-1"
+              >
+                {formatTime(timeRemaining)}
+              </Badge>
+            )}
           </CardHeader>
           <CardContent className="flex-1 overflow-auto">
             {" "}
@@ -443,13 +456,13 @@ export const GameScreen: React.FC = () => {
         <Card className="col-span-2 row-span-2 border-gray-700 overflow-hidden flex flex-col">
           <CardHeader className="pb-3 flex-shrink-0">
             <CardTitle className="text-lg">
-              Players ({playersWithHP.length}/10)
+              Players ({playersInGame.length}/10)
             </CardTitle>
           </CardHeader>
           <CardContent className="flex-1 overflow-auto">
             <ScrollArea className="h-full pr-2">
               <div className="space-y-3">
-                {playersWithHP.map((player) => (
+                {playersInGame.map((player) => (
                   <div
                     key={player.id}
                     className={`p-3 border rounded-lg transition-colors ${
@@ -464,9 +477,9 @@ export const GameScreen: React.FC = () => {
                           {player.name} {player.id === playerId ? "(You)" : ""}
                         </span>
                         <div className="flex items-center gap-2">
-                          <HPBar hp={player.hp} />
+                          <HPBar hp={player.hp || 100} />
                           <span className="text-xs text-gray-400">
-                            {player.hp} HP
+                            {player.hp || 100} HP
                           </span>
                         </div>
                       </div>
@@ -477,7 +490,7 @@ export const GameScreen: React.FC = () => {
                   </div>
                 ))}
                 {Array.from({
-                  length: Math.max(0, 10 - playersWithHP.length),
+                  length: Math.max(0, 10 - playersInGame.length),
                 }).map((_, index) => (
                   <div
                     key={`empty-${index}`}

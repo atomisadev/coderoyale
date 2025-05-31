@@ -187,4 +187,25 @@ namespace MyCsApi.Models
         public LeakMessage(string playerId, string cardName)
             : this("leak", new LeakPayload(playerId, cardName)) { }
     }
+
+    public record CardAwardedPayload(string CardName, string Rarity, string Description);
+    public record CardAwardedMessage(string Type, CardAwardedPayload Payload) : BaseWebSocketMessage(Type)
+    {
+        public CardAwardedMessage(string cardName, string rarity, string description)
+            : this("cardAwarded", new CardAwardedPayload(cardName, rarity, description)) { }
+    }
+
+    public record PlayerHpUpdatePayload(string PlayerId, int HpChange);
+    public record PlayerHpUpdateMessage(string Type, PlayerHpUpdatePayload Payload) : BaseWebSocketMessage(Type)
+    {
+        public PlayerHpUpdateMessage(string playerId, int hpChange)
+            : this("playerHpUpdate", new PlayerHpUpdatePayload(playerId, hpChange)) { }
+    }
+
+    public record ProblemTimeoutPayload();
+    public record ProblemTimeoutMessage(string Type, ProblemTimeoutPayload Payload) : BaseWebSocketMessage(Type)
+    {
+        public ProblemTimeoutMessage()
+            : this("problemTimeout", new ProblemTimeoutPayload()) { }
+    }
 }

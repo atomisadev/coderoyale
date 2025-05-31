@@ -47,6 +47,7 @@ interface GameWebSocketState {
   hostPlayerId: string | null;
   currentProblem: ProblemDetails | null;
   setExternalRoomCode: (code: string | null) => void;
+  timeRemaining: number | null;
 }
 
 const GameWebSocketContext = createContext<GameWebSocketState | undefined>(
@@ -74,6 +75,7 @@ export const GameWebSocketProvider: React.FC<{ children: React.ReactNode }> = ({
   const [currentProblem, setCurrentProblem] = useState<ProblemDetails | null>(
     null
   );
+  const [timeRemaining, setTimeRemaining] = useState<number | null>(null);
 
   const connect = useCallback(() => {
     if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
@@ -96,6 +98,25 @@ export const GameWebSocketProvider: React.FC<{ children: React.ReactNode }> = ({
       try {
         const message = JSON.parse(event.data as string);
         switch (message.type) {
+          case "newProblem":
+            if (message.payload) {
+              setCurrentProblem({
+                title: message.payload.title,
+                statement: message.payload.statement,
+                inputDescription: message.payload.inputDescription,
+                outputDescription: message.payload.outputDescription,
+                constraints: message.payload.constraints,
+                testCases: message.payload.testCases || [],
+              });
+              setTimeRemaining(10); // 300s = 5m
+            }
+            break;
+          case "problemSolved":
+            setTimeRemaining(null);
+            break;
+          case "timeUpdate":
+            setTimeRemaining(message.payload.timeRemaining);
+            break;
           case "roomCreated":
             setRoomCode(message.payload.roomCode);
             setPlayerId(message.payload.playerId);
@@ -181,25 +202,21 @@ export const GameWebSocketProvider: React.FC<{ children: React.ReactNode }> = ({
             setError(null);
             break;
           case "playerHpUpdate":
+            console.log("HP Update received:", message.payload);
             setPlayersInGame((prevPlayers) =>
               prevPlayers.map((player) =>
                 player.id === message.payload.playerId
-                  ? { ...player, hp: message.payload.hp }
+                  ? {
+                      ...player,
+                      hp: message.payload.hp,
+                    }
                   : player
               )
             );
             break;
-          case "newProblem":
-            if (message.payload) {
-              setCurrentProblem({
-                title: message.payload.title,
-                statement: message.payload.statement,
-                inputDescription: message.payload.inputDescription,
-                outputDescription: message.payload.outputDescription,
-                constraints: message.payload.constraints,
-                testCases: message.payload.testCases || [],
-              });
-            }
+          case "problemTimeout":
+            setTimeRemaining(null);
+            console.log("Problem timeout received from server");
             break;
           default:
             console.warn("Unhandled WebSocket message type:", message.type);
@@ -265,6 +282,23 @@ export const GameWebSocketProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   };
 
+  useEffect(() => {
+    if (timeRemaining == null || timeRemaining <= 0) return;
+
+    const timer = setInterval(() => {
+      setTimeRemaining((prev) => {
+        if (prev == null || prev <= 1) {
+          // sendMessage("problemTimeout", {});
+          console.log("Timer expired on client side");
+          return null;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [timeRemaining, sendMessage]);
+
   const setExternalRoomCodeCallback = useCallback((code: string | null) => {
     if (code) {
       //maybe reset player id or sm
@@ -280,7 +314,7 @@ export const GameWebSocketProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   }, []);
 
-  const state = {
+  const value: GameWebSocketState = {
     isConnected,
     roomCode,
     gameId,
@@ -294,10 +328,11 @@ export const GameWebSocketProvider: React.FC<{ children: React.ReactNode }> = ({
     hostPlayerId,
     currentProblem,
     setExternalRoomCode: setExternalRoomCodeCallback,
+    timeRemaining,
   };
 
   return (
-    <GameWebSocketContext.Provider value={state}>
+    <GameWebSocketContext.Provider value={value}>
       {children}
     </GameWebSocketContext.Provider>
   );
