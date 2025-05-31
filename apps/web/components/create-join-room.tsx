@@ -1,14 +1,27 @@
+// apps/web/components/create-join-room.tsx
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { useGameWebSocket } from "../context/game-socket-provider";
 import { Button } from "@/components/ui/button";
 
-export const CreateJoinRoom: React.FC = () => {
+interface CreateJoinRoomProps {
+  initialRoomCode?: string;
+}
+
+export const CreateJoinRoom: React.FC<CreateJoinRoomProps> = ({
+  initialRoomCode,
+}) => {
   const { sendMessage, error, setExternalRoomCode } = useGameWebSocket() as any;
   const [playerName, setPlayerName] = useState("");
-  const [inputRoomCode, setInputRoomCode] = useState("");
+  const [inputRoomCode, setInputRoomCode] = useState(initialRoomCode || "");
+
+  useEffect(() => {
+    if (initialRoomCode && !inputRoomCode) {
+      setInputRoomCode(initialRoomCode.toUpperCase());
+    }
+  }, [initialRoomCode, inputRoomCode]);
 
   const createRoomMutation = useMutation({
     mutationFn: async (name: string) => {
@@ -68,7 +81,7 @@ export const CreateJoinRoom: React.FC = () => {
           value={playerName}
           onChange={(e) => setPlayerName(e.target.value)}
           placeholder="Enter your name"
-          style={{ padding: "8px", marginRight: "10px" }}
+          style={{ padding: "8px", marginRight: "10px", color: "black" }}
         />
       </div>
 
@@ -97,7 +110,7 @@ export const CreateJoinRoom: React.FC = () => {
           onChange={(e) => setInputRoomCode(e.target.value.toUpperCase())}
           placeholder="Enter Room Code"
           maxLength={5}
-          style={{ padding: "8px", marginRight: "10px" }}
+          style={{ padding: "8px", marginRight: "10px", color: "black" }}
         />
         <Button
           onClick={handleJoinRoom}

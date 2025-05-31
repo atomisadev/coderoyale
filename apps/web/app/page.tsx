@@ -1,12 +1,17 @@
+// apps/web/app/page.tsx
 "use client";
 
+import React, { Suspense } from "react"; // Import Suspense
 import styles from "./page.module.css";
 import { useGameWebSocket } from "../context/game-socket-provider";
 import { CreateJoinRoom } from "../components/create-join-room";
 import { Lobby } from "../components/lobby";
+import { useSearchParams } from "next/navigation";
 
-export default function Home() {
+function HomePageContent() {
   const { isConnected, roomCode, error: wsError } = useGameWebSocket();
+  const searchParams = useSearchParams();
+  const roomCodeFromUrl = searchParams.get("roomCode");
 
   return (
     <div className={styles.page}>
@@ -17,10 +22,21 @@ export default function Home() {
         )}
         {wsError && <p style={{ color: "red" }}>Connection Error: {wsError}</p>}
 
-        {isConnected && !roomCode && <CreateJoinRoom />}
+        {isConnected && !roomCode && (
+          <CreateJoinRoom initialRoomCode={roomCodeFromUrl || undefined} />
+        )}
 
         {isConnected && roomCode && <Lobby />}
       </main>
     </div>
+  );
+}
+
+export default function Home() {
+  return (
+    // Wrap the component that uses useSearchParams with Suspense
+    <Suspense fallback={<div>Loading...</div>}>
+      <HomePageContent />
+    </Suspense>
   );
 }
