@@ -25,7 +25,8 @@ builder.Services.AddCors(options =>
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 
-builder.Services.AddSingleton<RoomManager>();
+builder.Services.AddSingleton<IRoomManager, RoomManager>();
+builder.Services.AddSingleton<ICardManager, CardManager>();
 builder.Services.AddSingleton<WebSocketMessageHandler>();
 
 

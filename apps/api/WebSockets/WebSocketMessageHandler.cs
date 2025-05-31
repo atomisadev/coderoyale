@@ -13,6 +13,7 @@ namespace MyCsApi.WebSockets
     public class WebSocketMessageHandler
     {
         private readonly RoomManager _roomManager;
+        private readonly CardManager _cardManager;
         private readonly ILogger<WebSocketMessageHandler> _logger;
         private static readonly JsonSerializerOptions _jsonSerializerOptions = new()
         {
@@ -20,9 +21,10 @@ namespace MyCsApi.WebSockets
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase
         };
 
-        public WebSocketMessageHandler(RoomManager roomManager, ILogger<WebSocketMessageHandler> logger)
+        public WebSocketMessageHandler(RoomManager roomManager, CardManager cardManager, ILogger<WebSocketMessageHandler> logger)
         {
             _roomManager = roomManager;
+            _cardManager = cardManager;
             _logger = logger;
         }
 
@@ -63,6 +65,12 @@ namespace MyCsApi.WebSockets
                                 var joinRoomMsg = JsonSerializer.Deserialize<JoinRoomClientMessage>(messageJson, _jsonSerializerOptions);
                                 if (joinRoomMsg != null)
                                     await _roomManager.JoinRoomAsync(webSocket, playerId, joinRoomMsg.Payload.PlayerName, joinRoomMsg.Payload.RoomCode);
+                                break;
+                            case "useCard":
+                                var useCardMsg = JsonSerializer.Deserialize<UseCardMessage>(messageJson, _jsonSerializerOptions);
+                                if (useCardMsg != null)
+                                    await _cardManager.UseCardAsync(webSocket, playerId, useCardMsg.Payload.CardName,
+                                        useCardMsg.Payload.TargetPlayerId);
                                 break;
                             case "startGame":
                                 await _roomManager.StartGameAsync(playerId);

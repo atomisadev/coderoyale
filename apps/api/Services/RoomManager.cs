@@ -12,7 +12,14 @@ using MyCsApi.Models;
 
 namespace MyCsApi.Services
 {
-    public class RoomManager
+    public interface IRoomManager
+    {
+        public Task CreateRoomAsync(WebSocket webSocket, string playerId, string playerName);
+        public Task JoinRoomAsync(WebSocket webSocket, string playerId, string playerName, string roomCode);
+        public Task PlayerDisconnectedAsync(string playerId, WebSocket webSocket);
+        public ConcurrentDictionary<string, Player> GetPlayers();
+    }
+    public class RoomManager : IRoomManager
     {
         private readonly ConcurrentDictionary<string, GameRoom> _rooms = new();
         private readonly ConcurrentDictionary<string, Player> _players = new();
@@ -26,6 +33,11 @@ namespace MyCsApi.Services
         public RoomManager(ILogger<RoomManager> logger)
         {
             _logger = logger;
+        }
+
+        public ConcurrentDictionary<string, Player> GetPlayers()
+        {
+            return _players;
         }
 
         private string GenerateRoomCode()
@@ -190,11 +202,6 @@ namespace MyCsApi.Services
                     }
                 }
             }
-        }
-
-        public async Task<ConcurrentDictionary<string, Player>> GetPlayerList(WebSocket webSocket, string playerId)
-        {
-            return _players;
         }
     }
 }

@@ -61,12 +61,13 @@ namespace MyCsApi.Models
             : this("gameStarted", new GameStartedServerPayload(playersInGame)) { }
     }
 
-    public record PlayerUsedCardPayload(string CardName, string PlayerId, string PlayerName);
+    
+    public record UseCardPayload(string CardName, string PlayerId, string TargetPlayerId);
 
-    public record PlayerUsedCardMessage(string Type, PlayerUsedCardPayload Payload) : BaseWebSocketMessage(Type)
+    public record UseCardMessage(string Type, UseCardPayload Payload) : BaseWebSocketMessage(Type)
     {
-        public PlayerUsedCardMessage(string cardName, string playerId, string playerName)
-            : this("playerUsedCard", new PlayerUsedCardPayload(cardName, playerId, playerName)) { }
+        public UseCardMessage(string cardName, string playerId, string targetPlayerId) 
+            : this("useCard", new UseCardPayload(cardName, playerId, targetPlayerId)) { }
     }
 
     public record NewProblemPayload(string ProblemName, string ProblemInfo);
@@ -105,5 +106,13 @@ namespace MyCsApi.Models
         public StartGameMessage() :
             this("startGame", new StartGamePayload())
         { }
+    }
+    
+    public record PlayerSolvedPayload(string PlayerName, string PlayerId);
+
+    public record PlayerSolvedMessage(string Type, PlayerSolvedPayload Payload) : BaseWebSocketMessage(Type)
+    {
+        public PlayerSolvedMessage(string playerName, string playerId)
+            : this("playerSolved", new PlayerSolvedPayload(playerName, playerId)) { }
     }
 }
