@@ -78,11 +78,11 @@ namespace MyCsApi.Models
             : this("newProblem", new NewProblemPayload(problemName, problemInfo)) { }
     }
 
-    public record PlayerStateUpdatePayload(string PlayerId, int hp, string card);
+    public record PlayerStateUpdatePayload(string PlayerId, int Hp, string CardName);
     public record PlayerStateUpdateMessage(string Type, PlayerStateUpdatePayload Payload) : BaseWebSocketMessage(Type)
     {
-        public PlayerStateUpdateMessage(string playerId, int hp, string card)
-            : this("playerStateUpdate", new PlayerStateUpdatePayload(playerId, hp, card)) { }
+        public PlayerStateUpdateMessage(string playerId, int hp, string cardName)
+            : this("playerStateUpdate", new PlayerStateUpdatePayload(playerId, hp, cardName)) { }
     }
 
     public record PlayerEliminatedPayload(string PlayerId, string PlayerName, string Reason);
@@ -164,11 +164,27 @@ namespace MyCsApi.Models
             : this("Heal", new HealPayload(playerId, hp, cardName)) { }
     }
     
-    public record VibeCodePayload(string PlayerId, string targetPlayerId, string cardName);
+    public record VibeCodePayload(string PlayerId, string TargetPlayerId, string CardName);
 
     public record VibeCodeMessage(string Type, VibeCodePayload Payload) : BaseWebSocketMessage(Type)
     {
         public VibeCodeMessage(string playerId, string targetPlayerId, string cardName)
             : this("VibeCode", new VibeCodePayload(playerId, targetPlayerId, cardName)) { }
+    }
+    
+    public record CompilerAttackPayload(string PlayerId, string TargetPlayerId, string CardName);
+
+    public record CompilerAttackMessage(string Type, CompilerAttackPayload Payload) : BaseWebSocketMessage(Type)
+    {
+        public CompilerAttackMessage(string playerId, string targetPlayerId, string cardName)
+            : this("compilerAttack", new CompilerAttackPayload(playerId, targetPlayerId, cardName)) { }
+    }
+    
+    public record LeakPayload(string PlayerId, string CardName);
+
+    public record LeakMessage(string Type, LeakPayload Payload) : BaseWebSocketMessage(Type)
+    {
+        public LeakMessage(string playerId, string cardName)
+            : this("leak", new LeakPayload(playerId, cardName)) { }
     }
 }

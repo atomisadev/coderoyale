@@ -43,6 +43,14 @@ public class CardManager : ICardManager
                 var casinoMessage = new DamageMessage(playerId, targetPlayerId, Random.Shared.Next(30), cardName);
                 await SendMessageAsync(webSocket, casinoMessage);
                 break;
+            case "CompilerAttack":
+                var compilerMessage = new CompilerAttackMessage(playerId, targetPlayerId, cardName);
+                await SendMessageAsync(webSocket, compilerMessage);
+                break;
+            case "Leak":
+                var leakMessage = new LeakMessage(playerId, targetPlayerId);
+                await SendMessageAsync(webSocket, leakMessage);
+                break;
             case "Defend":
                 var defendMessage = new DefendMessage(playerId, 15, cardName);
                 await SendMessageAsync(webSocket, defendMessage);

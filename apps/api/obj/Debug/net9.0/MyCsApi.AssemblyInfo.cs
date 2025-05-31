@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("MyCsApi")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+b0ef378eaf20970bc1c3da9f03bb76a6ca52479f")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+54a49c2acae8fed92ac58d810feef0c4178e008b")]
 [assembly: System.Reflection.AssemblyProductAttribute("MyCsApi")]
 [assembly: System.Reflection.AssemblyTitleAttribute("MyCsApi")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
