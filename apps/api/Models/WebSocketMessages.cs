@@ -78,11 +78,11 @@ namespace MyCsApi.Models
             : this("newProblem", new NewProblemPayload(problemName, problemInfo)) { }
     }
 
-    public record PlayerStateUpdatePayload(string PlayerId, string[] cards);
+    public record PlayerStateUpdatePayload(string PlayerId, int hp, string card);
     public record PlayerStateUpdateMessage(string Type, PlayerStateUpdatePayload Payload) : BaseWebSocketMessage(Type)
     {
-        public PlayerStateUpdateMessage(string playerId, string[] cards)
-            : this("playerStateUpdate", new PlayerStateUpdatePayload(playerId, cards)) { }
+        public PlayerStateUpdateMessage(string playerId, int hp, string card)
+            : this("playerStateUpdate", new PlayerStateUpdatePayload(playerId, hp, card)) { }
     }
 
     public record PlayerEliminatedPayload(string PlayerId, string PlayerName, string Reason);
@@ -124,11 +124,51 @@ namespace MyCsApi.Models
             : this("newProblem", new ProblemDetailsPayload(title, statement, inputDesc, outputDesc, constraints ?? string.Empty)) { }
     }
     
-    public record SyntaxScramblePayload(string TargetPlayerId);
+    public record SyntaxScramblePayload(string PlayerId, string TargetPlayerId, string CardName);
 
     public record SyntaxScrambleMessage(string Type, SyntaxScramblePayload Payload) : BaseWebSocketMessage(Type)
     {
-        public SyntaxScrambleMessage(string targetPlayerId)
-            : this("SyntaxScramble", new SyntaxScramblePayload(targetPlayerId)) { }
+        public SyntaxScrambleMessage(string playerId, string targetPlayerId, string cardName)
+            : this("SyntaxScramble", new SyntaxScramblePayload(playerId, targetPlayerId, cardName)) { }
+    }
+    
+    public record DamagePayload(string PlayerId, string TargetPlayerId, int Damage, string CardName);
+
+    public record DamageMessage(string Type, DamagePayload Payload) : BaseWebSocketMessage(Type)
+    {
+        public DamageMessage(string playerId, string targetPlayerId, int damage, string cardName)
+            : this("Damage", new DamagePayload(playerId, targetPlayerId, damage, cardName)) { }
+    }
+    
+    public record DefendPayload(string PlayerId, int Defend, string CardName);
+
+    public record DefendMessage(string Type, DefendPayload Payload) : BaseWebSocketMessage(Type)
+    {
+        public DefendMessage(string playerId, int defense, string cardName)
+            : this("Defend", new DefendPayload(playerId, defense, cardName)) { }
+    }
+    
+    public record BlockPayload(string PlayerId, string CardName);
+
+    public record BlockMessage(string Type, BlockPayload Payload) : BaseWebSocketMessage(Type)
+    {
+        public BlockMessage(string playerId, string cardName)
+            : this("Block", new BlockPayload(playerId, cardName)) { }
+    }
+    
+    public record HealPayload(string PlayerId, int Hp, string CardName);
+
+    public record HealMessage(string Type, HealPayload Payload) : BaseWebSocketMessage(Type)
+    {
+        public HealMessage(string playerId, int hp, string cardName)
+            : this("Heal", new HealPayload(playerId, hp, cardName)) { }
+    }
+    
+    public record VibeCodePayload(string PlayerId, string targetPlayerId, string cardName);
+
+    public record VibeCodeMessage(string Type, VibeCodePayload Payload) : BaseWebSocketMessage(Type)
+    {
+        public VibeCodeMessage(string playerId, string targetPlayerId, string cardName)
+            : this("VibeCode", new VibeCodePayload(playerId, targetPlayerId, cardName)) { }
     }
 }

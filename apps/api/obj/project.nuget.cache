@@ -1,11 +1,12 @@
 {
   "version": 2,
-  "dgSpecHash": "1GKYWjcOsg0=",
+  "dgSpecHash": "e2tqlROo0Oc=",
   "success": true,
-  "projectFilePath": "/home/ubuntu/coderoyalereal/apps/api/MyCsApi.csproj",
+  "projectFilePath": "/home/xriiitox/Documents/Programming/coderoyale-private/apps/api/MyCsApi.csproj",
   "expectedPackageFiles": [
-    "/home/ubuntu/.nuget/packages/microsoft.aspnetcore.openapi/9.0.4/microsoft.aspnetcore.openapi.9.0.4.nupkg.sha512",
-    "/home/ubuntu/.nuget/packages/microsoft.openapi/1.6.17/microsoft.openapi.1.6.17.nupkg.sha512"
+    "/home/xriiitox/.nuget/packages/microsoft.aspnetcore.openapi/9.0.4/microsoft.aspnetcore.openapi.9.0.4.nupkg.sha512",
+    "/home/xriiitox/.nuget/packages/microsoft.openapi/1.6.17/microsoft.openapi.1.6.17.nupkg.sha512",
+    "/home/xriiitox/.nuget/packages/microsoft.aspnetcore.app.ref/9.0.4/microsoft.aspnetcore.app.ref.9.0.4.nupkg.sha512"
   ],
   "logs": []
 }
