@@ -175,9 +175,7 @@ export const GameScreen: React.FC = () => {
 
   return (
     <div className="h-screen w-screen grid grid-cols-2 gap-2 p-2 bg-gray-900 text-white overflow-hidden">
-      {/* Left Side - Split between Problem and Players */}
       <div className="grid grid-rows-2 gap-2 h-full">
-        {/* Top Left - Problem */}
         <div className="p-4 border border-gray-600 rounded-lg bg-gray-800/50 overflow-y-auto">
           <h3 className="text-lg font-semibold text-center mb-4">
             {currentProblem?.title || "Loading Problem..."}
@@ -191,7 +189,7 @@ export const GameScreen: React.FC = () => {
                   {currentProblem.statement}
                 </p>
               </div>
-
+            
               {currentProblem.inputDescription && (
                 <div>
                   <hr className="border-gray-600 my-3" />
