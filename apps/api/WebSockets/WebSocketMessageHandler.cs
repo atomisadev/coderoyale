@@ -12,8 +12,8 @@ namespace MyCsApi.WebSockets
 {
     public class WebSocketMessageHandler
     {
-        private readonly RoomManager _roomManager;
-        private readonly CardManager _cardManager;
+        private readonly IRoomManager _roomManager;
+        private readonly ICardManager _cardManager;
         private readonly ILogger<WebSocketMessageHandler> _logger;
         private static readonly JsonSerializerOptions _jsonSerializerOptions = new()
         {
@@ -21,7 +21,7 @@ namespace MyCsApi.WebSockets
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase
         };
 
-        public WebSocketMessageHandler(RoomManager roomManager, CardManager cardManager, ILogger<WebSocketMessageHandler> logger)
+        public WebSocketMessageHandler(IRoomManager roomManager, ICardManager cardManager, ILogger<WebSocketMessageHandler> logger)
         {
             _roomManager = roomManager;
             _cardManager = cardManager;

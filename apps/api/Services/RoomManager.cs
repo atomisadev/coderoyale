@@ -16,6 +16,7 @@ namespace MyCsApi.Services
     {
         public Task CreateRoomAsync(WebSocket webSocket, string playerId, string playerName);
         public Task JoinRoomAsync(WebSocket webSocket, string playerId, string playerName, string roomCode);
+        public Task StartGameAsync(string playerId);
         public Task PlayerDisconnectedAsync(string playerId, WebSocket webSocket);
         public ConcurrentDictionary<string, Player> GetPlayers();
     }

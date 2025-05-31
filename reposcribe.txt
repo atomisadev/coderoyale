@@ -1,6 +1,6 @@
 Project Directory: /home/ubuntu/coderoyalereal
 Output File: /home/ubuntu/coderoyalereal/reposcribe.txt
-Date: 2025-05-31T03:40:07.944Z
+Date: 2025-05-31T04:18:18.882Z
 
 File Tree:
 coderoyalereal/
@@ -2069,7 +2069,7 @@ namespace MyCsApi.Models
 
     public record PlayerInfo(string Id, string Name);
 
-    public record RoomCreatedServerPayload(string RoomCode, string PlayerId, string PlayerName, string GameId, string HostPLayerId);
+    public record RoomCreatedServerPayload(string RoomCode, string PlayerId, string PlayerName, string GameId, string HostPlayerId);
     public record RoomCreatedServerMessage(string Type, RoomCreatedServerPayload Payload) : BaseWebSocketMessage(Type)
     {
         public RoomCreatedServerMessage(string roomCode, string playerId, string playerName, string gameId, string hostPlayerId)
@@ -2110,12 +2110,13 @@ namespace MyCsApi.Models
             : this("gameStarted", new GameStartedServerPayload(playersInGame)) { }
     }
 
-    public record PlayerUsedCardPayload(string CardName, string PlayerId, string PlayerName);
+    
+    public record UseCardPayload(string CardName, string PlayerId, string TargetPlayerId);
 
-    public record PlayerUsedCardMessage(string Type, PlayerUsedCardPayload Payload) : BaseWebSocketMessage(Type)
+    public record UseCardMessage(string Type, UseCardPayload Payload) : BaseWebSocketMessage(Type)
     {
-        public PlayerUsedCardMessage(string cardName, string playerId, string playerName)
-            : this("playerUsedCard", new PlayerUsedCardPayload(cardName, playerId, playerName)) { }
+        public UseCardMessage(string cardName, string playerId, string targetPlayerId) 
+            : this("useCard", new UseCardPayload(cardName, playerId, targetPlayerId)) { }
     }
 
     public record NewProblemPayload(string ProblemName, string ProblemInfo);
@@ -2154,6 +2155,14 @@ namespace MyCsApi.Models
         public StartGameMessage() :
             this("startGame", new StartGamePayload())
         { }
+    }
+    
+    public record PlayerSolvedPayload(string PlayerName, string PlayerId);
+
+    public record PlayerSolvedMessage(string Type, PlayerSolvedPayload Payload) : BaseWebSocketMessage(Type)
+    {
+        public PlayerSolvedMessage(string playerName, string playerId)
+            : this("playerSolved", new PlayerSolvedPayload(playerName, playerId)) { }
     }
 }
 -------------------- END WebSocketMessages.cs --------------------
@@ -2352,7 +2361,8 @@ builder.Services.AddCors(options =>
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 
-builder.Services.AddSingleton<RoomManager>();
+builder.Services.AddSingleton<IRoomManager, RoomManager>();
+builder.Services.AddSingleton<ICardManager, CardManager>();
 builder.Services.AddSingleton<WebSocketMessageHandler>();
 
 
@@ -2418,11 +2428,53 @@ app.Run();
 -------------------- END index.ts --------------------
 
 -------------------- CardManager.cs (path: apps/api/Services/CardManager.cs) --------------------
+using System.Collections.Concurrent;
+using System.Net.WebSockets;
+using System.Text;
+using System.Text.Json;
+using MyCsApi.Models;
+
 namespace MyCsApi.Services;
 
-public class CardManager
+public interface ICardManager
 {
+    public Task UseCardAsync(WebSocket webSocket, string playerId, string cardName, string targetPlayerId);
+}
+
+public class CardManager : ICardManager
+{
+    private readonly ILogger<CardManager> _logger;
+    private readonly ConcurrentDictionary<string, Player> _players;
+
+    public CardManager(ILogger<CardManager> logger, IRoomManager roomManager)
+    {
+        _logger = logger;
+        _players = roomManager.GetPlayers();
+    }
+
+    public async Task UseCardAsync(WebSocket webSocket, string playerId, string cardName, string targetPlayerId)
+    {
+        switch (cardName)
+        {
+            case "Attack":
+                await SendPlayerUpdateMessageAsync(webSocket, playerId, targetPlayerId, 20, cardName);
+                break;
+            default:
+                break;
+        }
+        
+    }
     
+    private async Task SendPlayerUpdateMessageAsync(WebSocket webSocket, string playerId, string targetPlayerId, int dHp, string cardName)
+    {
+        if (webSocket.State == WebSocketState.Open)
+        {
+            var messageJson = $"{{\"playerId\": \"{targetPlayerId}\", \"hp\": \"{dHp}\", \"cardName\": \"{cardName}\"}}";
+            var bytes = Encoding.UTF8.GetBytes(messageJson);
+            await webSocket.SendAsync(new ArraySegment<byte>(bytes), WebSocketMessageType.Text, true, CancellationToken.None);
+            _logger.LogDebug($"Sent message: {messageJson}");
+        }
+    }
 }
 -------------------- END CardManager.cs --------------------
 
@@ -2441,7 +2493,14 @@ using MyCsApi.Models;
 
 namespace MyCsApi.Services
 {
-    public class RoomManager
+    public interface IRoomManager
+    {
+        public Task CreateRoomAsync(WebSocket webSocket, string playerId, string playerName);
+        public Task JoinRoomAsync(WebSocket webSocket, string playerId, string playerName, string roomCode);
+        public Task PlayerDisconnectedAsync(string playerId, WebSocket webSocket);
+        public ConcurrentDictionary<string, Player> GetPlayers();
+    }
+    public class RoomManager : IRoomManager
     {
         private readonly ConcurrentDictionary<string, GameRoom> _rooms = new();
         private readonly ConcurrentDictionary<string, Player> _players = new();
@@ -2455,6 +2514,11 @@ namespace MyCsApi.Services
         public RoomManager(ILogger<RoomManager> logger)
         {
             _logger = logger;
+        }
+
+        public ConcurrentDictionary<string, Player> GetPlayers()
+        {
+            return _players;
         }
 
         private string GenerateRoomCode()
@@ -2620,11 +2684,6 @@ namespace MyCsApi.Services
                 }
             }
         }
-
-        public async Task<ConcurrentDictionary<string, Player>> GetPlayerList(WebSocket webSocket, string playerId)
-        {
-            return _players;
-        }
     }
 }
 -------------------- END RoomManager.cs --------------------
@@ -2645,6 +2704,7 @@ namespace MyCsApi.WebSockets
     public class WebSocketMessageHandler
     {
         private readonly RoomManager _roomManager;
+        private readonly CardManager _cardManager;
         private readonly ILogger<WebSocketMessageHandler> _logger;
         private static readonly JsonSerializerOptions _jsonSerializerOptions = new()
         {
@@ -2652,9 +2712,10 @@ namespace MyCsApi.WebSockets
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase
         };
 
-        public WebSocketMessageHandler(RoomManager roomManager, ILogger<WebSocketMessageHandler> logger)
+        public WebSocketMessageHandler(RoomManager roomManager, CardManager cardManager, ILogger<WebSocketMessageHandler> logger)
         {
             _roomManager = roomManager;
+            _cardManager = cardManager;
             _logger = logger;
         }
 
@@ -2695,6 +2756,12 @@ namespace MyCsApi.WebSockets
                                 var joinRoomMsg = JsonSerializer.Deserialize<JoinRoomClientMessage>(messageJson, _jsonSerializerOptions);
                                 if (joinRoomMsg != null)
                                     await _roomManager.JoinRoomAsync(webSocket, playerId, joinRoomMsg.Payload.PlayerName, joinRoomMsg.Payload.RoomCode);
+                                break;
+                            case "useCard":
+                                var useCardMsg = JsonSerializer.Deserialize<UseCardMessage>(messageJson, _jsonSerializerOptions);
+                                if (useCardMsg != null)
+                                    await _cardManager.UseCardAsync(webSocket, playerId, useCardMsg.Payload.CardName,
+                                        useCardMsg.Payload.TargetPlayerId);
                                 break;
                             case "startGame":
                                 await _roomManager.StartGameAsync(playerId);
