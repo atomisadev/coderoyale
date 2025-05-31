@@ -43,7 +43,7 @@ apps/api/bin/
 *.lock
 *.woff
 *.png
-# problems.json
+problems.json
 
 *.AssemblyInfo.cs
 *.cache

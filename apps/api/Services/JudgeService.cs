@@ -20,7 +20,8 @@ namespace MyCsApi.Services
         private readonly HttpClient _httpClient;
         private readonly Judge0Settings _judge0Settings;
         private readonly ILogger<JudgeService> _logger;
-        private static readonly JsonSerializerOptions _jsonOptions = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
+        private static readonly JsonSerializerOptions _responseJsonOptions = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
+        private static readonly JsonSerializerOptions _requestJsonOptions = new() { PropertyNamingPolicy = null };
 
         public JudgeService(HttpClient httpClient, IOptions<Judge0Settings> judge0Settings, ILogger<JudgeService> logger)
         {
@@ -40,30 +41,35 @@ namespace MyCsApi.Services
 
         public async Task<JudgeSubmissionResult?> SubmitCodeAsync(string sourceCode, int languageId, string? stdin, string? expectedOutput)
         {
-            var submissionRequest = new JudgeSubmissionRequest
+            var submissionRequestToJudge0 = new JudgeSubmissionRequest
             {
                 SourceCode = sourceCode,
                 LanguageId = languageId,
                 Stdin = stdin,
-                ExpectedOutput = expectedOutput // Judge0 can compare this or you can do it manually
+                ExpectedOutput = expectedOutput
             };
 
-            // Use wait=true to get the result directly, simplifies logic by avoiding polling
+            var jsonPayloadForJudge0 = JsonSerializer.Serialize(submissionRequestToJudge0, _requestJsonOptions);
+            _logger.LogInformation($"Payload sending to Judge0: {jsonPayloadForJudge0}");
+
             var judge0Url = $"{_judge0Settings.ApiUrl.TrimEnd('/')}/submissions?base64_encoded=false&wait=true";
+
             _logger.LogInformation($"Submitting to Judge0: {judge0Url}");
+            _logger.LogInformation($"Payload for Judge0: {jsonPayloadForJudge0}");
 
             try
             {
-                HttpResponseMessage response = await _httpClient.PostAsJsonAsync(judge0Url, submissionRequest, _jsonOptions);
+                var jsonContent = new StringContent(jsonPayloadForJudge0, Encoding.UTF8, "application/json");
+                HttpResponseMessage response = await _httpClient.PostAsync(judge0Url, jsonContent);
 
                 if (!response.IsSuccessStatusCode)
                 {
                     var errorContent = await response.Content.ReadAsStringAsync();
                     _logger.LogError($"Judge0 API request failed with status {response.StatusCode}: {errorContent}");
-                    return new JudgeSubmissionResult { Status = new JudgeStatus { Description = "Error communicating with Judge0" }, ErrorDetails = errorContent };
+                    return new JudgeSubmissionResult { Status = new JudgeStatus { Id = 0, Description = "Error communicating with Judge0" }, ErrorDetails = errorContent };
                 }
 
-                var result = await response.Content.ReadFromJsonAsync<JudgeSubmissionResult>(_jsonOptions);
+                var result = await response.Content.ReadFromJsonAsync<JudgeSubmissionResult>(_responseJsonOptions);
                 if (result != null)
                 {
                     _logger.LogInformation($"Judge0 Result ({result.Status?.Description}): STDOUT: {result.Stdout}, STDERR: {result.Stderr}, Compile Output: {result.CompileOutput}");
@@ -76,8 +82,6 @@ namespace MyCsApi.Services
                 return new JudgeSubmissionResult { Status = new JudgeStatus { Description = "Exception during Judge0 submission" }, ErrorDetails = ex.Message };
             }
         }
-
-
     }
 
     public class JudgeSubmissionRequest
