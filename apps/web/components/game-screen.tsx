@@ -68,11 +68,23 @@ export const GameScreen: React.FC = () => {
   // const [playersWithHP, setPlayersWithHP] = useState<PlayerWithHP[]>([]);
   const [terminalOutput, setTerminalOutput] = useState<string[]>([]);
 
+  const currentPlayer = playersInGame.find((p) => p.id === playerId);
+  const currentPlayerHp = currentPlayer?.hp ?? 100;
+
   const formatTime = (seconds: number) => {
     const minutes = Math.floor(seconds / 60);
     const remainingSeconds = seconds % 60;
     return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`;
   };
+
+  if (currentPlayerHp <= 0) {
+    return (
+      <div className="h-screen w-screen bg-[#0E0E0E] text-white flex flex-col items-center justify-center">
+        <h1 className="text-5xl font-bold mb-4">You died.</h1>
+        <p className="text-2xl">RIP</p>
+      </div>
+    );
+  }
 
   // useEffect(() => {
   //   if (playersInGame.length > 0) {
