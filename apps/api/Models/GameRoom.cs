@@ -12,7 +12,7 @@ namespace MyCsApi.Models
         private readonly List<Player> _players = new();
         public IReadOnlyCollection<Player> Players => _players.AsReadOnly();
 
-        public GameRoom(string roomCode, string gameId, string hostPlayerId)
+        public GameRoom(string roomCode, string     gameId, string hostPlayerId)
         {
             RoomCode = roomCode;
             GameId = gameId;
