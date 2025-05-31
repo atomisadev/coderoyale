@@ -1,7 +1,6 @@
 "use client";
 
 import React, { Suspense } from "react";
-import styles from "./page.module.css";
 import { useGameWebSocket } from "../context/game-socket-provider";
 import { CreateJoinRoom } from "../components/create-join-room";
 import { Lobby } from "../components/lobby";
@@ -19,9 +18,9 @@ function HomePageContent() {
   const roomCodeFromUrl = searchParams.get("roomCode");
 
   return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <h1>Code Royale</h1>
+    <div>
+      <main>
+        {/* <h1>Code Royale</h1> */}
         {!isConnected && (
           <p style={{ color: "orange" }}>Connecting to server...</p>
         )}

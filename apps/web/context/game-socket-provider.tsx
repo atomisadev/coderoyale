@@ -12,6 +12,7 @@ import React, {
 export interface PlayerInfo {
   id: string;
   name: string;
+  hp?: number;
 }
 
 export interface ProblemDetails {
@@ -95,6 +96,7 @@ export const GameWebSocketProvider: React.FC<{ children: React.ReactNode }> = ({
               {
                 id: message.payload.playerId,
                 name: message.payload.playerName,
+                hp: 100,
               },
             ]);
             setIsGameStarted(false);
@@ -111,6 +113,7 @@ export const GameWebSocketProvider: React.FC<{ children: React.ReactNode }> = ({
             const selfPlayer: PlayerInfo = {
               id: message.payload.playerId,
               name: message.payload.playerName,
+              hp: 100,
             };
             const otherPlayers = (message.payload.playersInLobby ||
               []) as PlayerInfo[];
@@ -128,13 +131,16 @@ export const GameWebSocketProvider: React.FC<{ children: React.ReactNode }> = ({
             setCurrentProblem(null);
             break;
           case "playerJoinedLobby":
-            setPlayersInLobby((prevPlayers) => {
-              if (!prevPlayers.find((p) => p.id === message.payload.playerId)) {
+            setPlayersInLobby((prevPlayers: any) => {
+              if (
+                !prevPlayers.find((p: any) => p.id === message.payload.playerId)
+              ) {
                 return [
                   ...prevPlayers,
                   {
                     id: message.payload.playerId,
                     name: message.payload.playerName,
+                    hp: 100,
                   },
                 ];
               }
@@ -153,10 +159,25 @@ export const GameWebSocketProvider: React.FC<{ children: React.ReactNode }> = ({
             break;
           case "gameStarted":
             setIsGameStarted(true);
-            setPlayersInGame(message.payload.playersInGame as PlayerInfo[]);
+            const playersWithHp = (
+              message.payload.playersInGame as Omit<PlayerInfo, "hp">[]
+            ).map((player) => ({
+              ...player,
+              hp: 100,
+            }));
+            setPlayersInGame(playersWithHp);
             setPlayersInLobby([]);
             setCurrentProblem(null);
             setError(null);
+            break;
+          case "playerHpUpdate":
+            setPlayersInGame((prevPlayers) =>
+              prevPlayers.map((player) =>
+                player.id === message.payload.playerId
+                  ? { ...player, hp: message.payload.hp }
+                  : player
+              )
+            );
             break;
           case "newProblem":
             if (message.payload) {
@@ -266,12 +287,8 @@ export const GameWebSocketProvider: React.FC<{ children: React.ReactNode }> = ({
     setExternalRoomCode: setExternalRoomCodeCallback,
   };
 
-  const setExternalRoomCode = (code: string | null) => {
-    setRoomCode(code);
-  };
-
   return (
-    <GameWebSocketContext.Provider value={state as any}>
+    <GameWebSocketContext.Provider value={state}>
       {children}
     </GameWebSocketContext.Provider>
   );
