@@ -47,4 +47,49 @@ namespace MyCsApi.Models
         public PlayerLeftLobbyServerMessage(string playerId, string playerName)
            : this("playerLeftLobby", new PlayerLeftLobbyServerPayload(playerId, playerName)) { }
     }
+    
+    public record PlayerUsedCardPayload(string CardName, string PlayerId, string PlayerName);
+
+    public record PlayerUsedCardMessage(string Type, PlayerUsedCardPayload Payload) : BaseWebSocketMessage(Type)
+    {
+        public PlayerUsedCardMessage(string cardName, string playerId, string playerName) 
+            : this("playerUsedCard", new PlayerUsedCardPayload(cardName, playerId, playerName)) { }
+    }
+
+    public record NewProblemPayload(string ProblemName, string ProblemInfo);
+
+    public record NewProblemMessage(string Type, NewProblemPayload Payload) : BaseWebSocketMessage(Type)
+    {
+        public NewProblemMessage(string problemName, string problemInfo)
+            : this("newProblem", new NewProblemPayload(problemName, problemInfo)) { }
+    }
+    
+    public record PlayerStateUpdatePayload(string PlayerId, string[] cards);
+    public record PlayerStateUpdateMessage(string Type, PlayerStateUpdatePayload Payload) : BaseWebSocketMessage(Type)
+    {
+        public PlayerStateUpdateMessage(string playerId, string[] cards)
+            : this("playerStateUpdate", new PlayerStateUpdatePayload(playerId, cards)) { }
+    }
+    
+    public record PlayerEliminatedPayload(string PlayerId, string PlayerName, string Reason);
+    public record PlayerEliminatedMessage(string Type, PlayerEliminatedPayload Payload) : BaseWebSocketMessage(Type)
+    {
+        public PlayerEliminatedMessage(string playerId, string playerName, string reason)
+            : this("playerEliminated", new PlayerEliminatedPayload(playerId, playerName, reason)) { }
+    }
+    
+    public record GameOverPayload(string PlayerId, string PlayerName);
+    public record GameOverMessage(string Type, GameOverPayload Payload) : BaseWebSocketMessage(Type)
+    {
+        public GameOverMessage(string playerId, string playerName)
+            : this("gameOver", new GameOverPayload(playerId, playerName)) { }
+    }
+    
+    public record StartGamePayload();
+
+    public record StartGameMessage(string Type, StartGamePayload Payload) : BaseWebSocketMessage(Type)
+    {
+        public StartGameMessage() :
+            this("startGame", new StartGamePayload()) { }
+    }
 }

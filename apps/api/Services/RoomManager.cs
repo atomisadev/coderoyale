@@ -153,5 +153,10 @@ namespace MyCsApi.Services
                 }
             }
         }
+
+        public async Task<ConcurrentDictionary<string, Player>> GetPlayerList(WebSocket webSocket, string playerId)
+        {
+            return _players;
+        }
     }
 }
