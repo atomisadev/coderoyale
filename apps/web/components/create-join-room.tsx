@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { useGameWebSocket } from "../context/game-socket-provider";
 import { Button } from "@/components/ui/button";
+import Image from "next/image";
 
 interface CreateJoinRoomProps {
   initialRoomCode?: string;
@@ -50,7 +51,7 @@ export const CreateJoinRoom: React.FC<CreateJoinRoomProps> = ({
     },
     onError: (err: Error) => {
       console.error("Join room error:", err.message);
-    },  
+    },
   });
 
   const handleCreateRoom = () => {
@@ -63,65 +64,54 @@ export const CreateJoinRoom: React.FC<CreateJoinRoomProps> = ({
 
   return (
     <div
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        gap: "20px",
-        alignItems: "center",
-        padding: "20px",
-      }}
-    >
-      <h2>Code Royale</h2>
-      <div>
-        <label htmlFor="playerName">Player Name: </label>
-        <input
-          id="playerName"
-          type="text"
-          value={playerName}
-          onChange={(e) => setPlayerName(e.target.value)}
-          placeholder="Enter your name"
-          style={{ padding: "8px", marginRight: "10px", color: "black" }}
-        />
+      className="flex flex-col bg-[url(/bg.png)] bg-center items-center h-screen w-screen">
+      <Image src='/logo.png' alt="" width={300} height={300} className="mt-20"/>
+      <div className="flex flex-row gap-6 h-full w-full justify-center items-center">
+        <div className="w-1/4 h-[55vh] text-center bg-[url(/card.png)] bg-no-repeat bg-contain bg-center flex flex-col">
+          <div>
+            <label htmlFor="playerName" className="w-full p-20">Player Name: </label>
+            <input
+              id="playerName"
+              type="text"
+              value={playerName}
+              onChange={(e) => setPlayerName(e.target.value)}
+              placeholder="Enter your name"
+            />
+          </div>
+          <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+            <Button
+              onClick={handleCreateRoom}
+              disabled={createRoomMutation.isPending || !playerName.trim()}
+            >
+              {createRoomMutation.isPending ? "Creating..." : "Create Room"}
+            </Button>
+          </div>
+
+        </div>
+        <div className="w-1/4 h-[55vh] text-center bg-[url(/card.png)] bg-no-repeat bg-contain bg-center">
+          <p>Or Join an Existing Room:</p>
+          <input
+            type="text"
+            value={inputRoomCode}
+            onChange={(e) => setInputRoomCode(e.target.value.toUpperCase())}
+            placeholder="Enter Room Code"
+            maxLength={5}
+            style={{ padding: "8px", marginRight: "10px", color: "black" }}
+          />
+          <Button
+            onClick={handleJoinRoom}
+            disabled={
+              joinRoomMutation.isPending ||
+              !playerName.trim() ||
+              !inputRoomCode.trim()
+            }
+          >
+            {joinRoomMutation.isPending ? "Joining..." : "Join Room"}
+          </Button></div>
+
       </div>
 
-      <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
-        <Button
-          onClick={handleCreateRoom}
-          disabled={createRoomMutation.isPending || !playerName.trim()}
-        >
-          {createRoomMutation.isPending ? "Creating..." : "Create Room"}
-        </Button>
-      </div>
 
-      <div
-        style={{
-          borderTop: "1px solid #ccc",
-          paddingTop: "20px",
-          marginTop: "20px",
-          width: "100%",
-          textAlign: "center",
-        }}
-      >
-        <p>Or Join an Existing Room:</p>
-        <input
-          type="text"
-          value={inputRoomCode}
-          onChange={(e) => setInputRoomCode(e.target.value.toUpperCase())}
-          placeholder="Enter Room Code"
-          maxLength={5}
-          style={{ padding: "8px", marginRight: "10px", color: "black" }}
-        />
-        <Button
-          onClick={handleJoinRoom}
-          disabled={
-            joinRoomMutation.isPending ||
-            !playerName.trim() ||
-            !inputRoomCode.trim()
-          }
-        >
-          {joinRoomMutation.isPending ? "Joining..." : "Join Room"}
-        </Button>
-      </div>
 
       {(createRoomMutation.error || joinRoomMutation.error || error) && (
         <p style={{ color: "red", marginTop: "10px" }}>

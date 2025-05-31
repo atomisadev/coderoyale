@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import Image from 'next/image'
 
 interface PlayerWithHP extends PlayerInfo {
   hp: number;
@@ -251,16 +252,14 @@ export const GameScreen: React.FC = () => {
   };
 
   const playerCards = [
-    { id: 1, name: "Attack", cost: 2, description: "Deal 20 damage" },
-    { id: 2, name: "Shield", cost: 1, description: "Block attack" },
-    // ... other cards
+    {name: "attack"},
+    {name: "shield"},
+    {name: "defend"},
   ];
 
   return (
-    <div className="h-screen w-screen bg-[#0E0E0E] text-white p-4">
-      <div className="grid grid-cols-4 grid-rows-4 gap-4 h-full">
-        {/* Problem and Test Cases Card */}
-        <Card className="col-span-2 row-span-2 border-gray-700 overflow-hidden flex flex-col">
+    <div className="h-screen w-screen grid grid-cols-2 grid-rows-2 gap-4 bg-[#060E25] bg-[url(/bg.png)] p-2 text-white">
+        <Card className="flex flex-col bg-[#060E25aa] overflow-hidden p-6 rounded-lg">
           <CardHeader className="pb-3 flex-shrink-0">
             <CardTitle className="text-lg p-2">
               {currentProblem?.title || "Loading Problem..."}
@@ -281,7 +280,7 @@ export const GameScreen: React.FC = () => {
               {" "}
               {/* ScrollArea now direct child */}
               {currentProblem ? (
-                <div className="space-y-6 ">
+                <div>
                   <div>
                     <h4 className="font-medium mb-3 text-orange-400">
                       Problem Statement:
@@ -366,7 +365,7 @@ export const GameScreen: React.FC = () => {
         </Card>
 
         {/* Code Editor and Terminal Card */}
-        <Card className="col-span-2 row-span-2 border-gray-700 overflow-hidden flex flex-col">
+        <Card className=" border-gray-700 overflow-hidden flex flex-col">
           <CardHeader className="pb-3 flex-shrink-0">
             <div className="flex justify-between items-center">
               <CardTitle className="text-lg">Development Environment</CardTitle>
@@ -465,7 +464,7 @@ export const GameScreen: React.FC = () => {
         </Card>
 
         {/* Players Card - ensure it's flex-col and CardContent is overflow-auto */}
-        <Card className="col-span-2 row-span-2 border-gray-700 overflow-hidden flex flex-col">
+        <Card className="border-gray-700 overflow-hidden flex flex-col">
           <CardHeader className="pb-3 flex-shrink-0">
             <CardTitle className="text-lg">
               Players ({playersInGame.length}/10)
@@ -528,64 +527,35 @@ export const GameScreen: React.FC = () => {
         </Card>
 
         {/* Hand of Cards */}
-        <div className="col-span-2 row-span-2 border border-gray-700 rounded-lg overflow-hidden">
+        <div className="border border-gray-700 rounded-lg overflow-hidden">
           <div className="px-6 py-4 border-b border-gray-700">
-            <h3 className="text-lg font-semibold">Your Hand</h3>
+            <h3 className="text-lg font-semibold">Hand</h3>
           </div>
           <div className="flex-1 flex items-end justify-center p-8 overflow-auto">
             {" "}
             {/* Added overflow-auto here too for safety */}
             <div className="relative flex items-end justify-center">
               {playerCards.map((card, index) => (
-                <div
-                  key={card.id}
-                  className="relative group cursor-pointer transition-all duration-300 ease-out"
+                <Image
+                  key={index}
+                  className="relative group cursor-pointer hover:scale-110 transition-all duration-300-50 bg-white"
                   style={{
                     transform: `
                       translateX(${(index - (playerCards.length - 1) / 2) * 50}px) 
                       rotate(${(index - (playerCards.length - 1) / 2) * 8}deg)
                       translateY(${Math.abs(index - (playerCards.length - 1) / 2) * 12}px)
                     `,
-                    zIndex: index + 1,
+                    zIndex: index + 20,
                   }}
-                >
-                  <div
-                    className="w-32 h-48 border-2 border-gray-600 rounded-lg p-3 shadow-lg transition-all duration-300 group-hover:border-blue-500 group-hover:shadow-blue-500/20 group-hover:scale-110 group-hover:-translate-y-8 group-hover:rotate-0 group-hover:z-50 backdrop-blur-sm bg-gray-800/70" // Added bg
-                    style={{ transformOrigin: "bottom center" }}
-                  >
-                    <div className="flex justify-between items-start mb-2">
-                      <h4 className="text-sm font-bold text-white leading-tight">
-                        {card.name}
-                      </h4>
-                      <div className="bg-blue-600 text-white text-xs px-1.5 py-0.5 rounded-full font-bold">
-                        {card.cost}⚡
-                      </div>
-                    </div>
-                    <div className="flex-1 flex items-center justify-center mb-2">
-                      <div className="w-16 h-16 bg-gray-700/50 rounded-lg flex items-center justify-center">
-                        <span className="text-2xl">
-                          {card.name === "Attack"
-                            ? "⚔️"
-                            : card.name === "Shield"
-                              ? "🛡️"
-                              : card.name === "Heal"
-                                ? "❤️"
-                                : card.name === "Boost"
-                                  ? "⚡"
-                                  : "🔧"}
-                        </span>
-                      </div>
-                    </div>
-                    <p className="text-xs text-gray-300 text-center leading-tight">
-                      {card.description}
-                    </p>
-                  </div>
-                </div>
+                src={`/cards/${card.name}.png`}
+                alt=""
+                width={400}
+                height={200}
+                />
               ))}
             </div>
           </div>
         </div>
-      </div>
 
       <div className="fixed top-4 right-4">
         <Badge variant="outline" className="bg-gray-900/80 border-gray-600">

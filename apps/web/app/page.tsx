@@ -20,7 +20,6 @@ function HomePageContent() {
   return (
     <div>
       <main>
-        {/* <h1>Code Royale</h1> */}
         {!isConnected && (
           <p style={{ color: "orange" }}>Connecting to server...</p>
         )}
