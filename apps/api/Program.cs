@@ -27,6 +27,7 @@ builder.Services.AddEndpointsApiExplorer();
 
 builder.Services.AddSingleton<IRoomManager, RoomManager>();
 builder.Services.AddSingleton<ICardManager, CardManager>();
+builder.Services.AddSingleton<IProblemService, ProblemService>();
 builder.Services.AddSingleton<WebSocketMessageHandler>();
 
 

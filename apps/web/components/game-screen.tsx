@@ -2,7 +2,7 @@
 
 import React from "react";
 import { useGameWebSocket, PlayerInfo } from "@/context/game-socket-provider";
-import { Button } from "./ui/button";
+// import { Button } from "./ui/button";
 
 export const GameScreen: React.FC = () => {
   const {
@@ -11,6 +11,7 @@ export const GameScreen: React.FC = () => {
     playerId,
     playerName,
     error: wsError,
+    currentProblem,
   } = useGameWebSocket();
 
   if (wsError) {
@@ -70,6 +71,72 @@ export const GameScreen: React.FC = () => {
             </li>
           ))}
         </ul>
+      </div>
+
+      <div
+        style={{
+          marginTop: "20px",
+          padding: "20px",
+          border: "1px dashed #666",
+          minHeight: "300px", // Increased height for problem
+          textAlign: "left", // Align problem text to the left
+          backgroundColor: "rgba(255,255,255,0.05)", // Slightly different background for problem area
+          borderRadius: "4px",
+        }}
+      >
+        {currentProblem ? (
+          <>
+            <h3
+              style={{
+                marginTop: 0,
+                marginBottom: "15px",
+                textAlign: "center",
+              }}
+            >
+              {currentProblem.title}
+            </h3>
+
+            <h4>Problem Statement:</h4>
+            <p style={{ whiteSpace: "pre-wrap", marginBottom: "15px" }}>
+              {currentProblem.statement}
+            </p>
+
+            {currentProblem.inputDescription && (
+              <>
+                <hr style={{ margin: "10px 0", borderColor: "#555" }} />
+                <h4>Input Description:</h4>
+                <p style={{ whiteSpace: "pre-wrap", marginBottom: "15px" }}>
+                  {currentProblem.inputDescription}
+                </p>
+              </>
+            )}
+
+            {currentProblem.outputDescription && (
+              <>
+                <hr style={{ margin: "10px 0", borderColor: "#555" }} />
+                <h4>Output Description:</h4>
+                <p style={{ whiteSpace: "pre-wrap", marginBottom: "15px" }}>
+                  {currentProblem.outputDescription}
+                </p>
+              </>
+            )}
+
+            {currentProblem.constraints &&
+              currentProblem.constraints.trim() !== "" && (
+                <>
+                  <hr style={{ margin: "10px 0", borderColor: "#555" }} />
+                  <h4>Constraints:</h4>
+                  <p style={{ whiteSpace: "pre-wrap" }}>
+                    {currentProblem.constraints}
+                  </p>
+                </>
+              )}
+          </>
+        ) : (
+          <p style={{ textAlign: "center" }}>
+            Loading problem or problem not available...
+          </p>
+        )}
       </div>
 
       <div

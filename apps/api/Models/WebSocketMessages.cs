@@ -27,11 +27,11 @@ namespace MyCsApi.Models
             : this("roomCreated", new RoomCreatedServerPayload(roomCode, playerId, playerName, gameId, hostPlayerId)) { }
     }
 
-    public record JoinSuccessServerPayload(string PlayerId, string PlayerName, string GameId, List<PlayerInfo> PlayersInLobby, string HostPlayerId);
+    public record JoinSuccessServerPayload(string RoomCode, string PlayerId, string PlayerName, string GameId, List<PlayerInfo> PlayersInLobby, string HostPlayerId);
     public record JoinSuccessServerMessage(string Type, JoinSuccessServerPayload Payload) : BaseWebSocketMessage(Type)
     {
-        public JoinSuccessServerMessage(string playerId, string playerName, string gameId, List<PlayerInfo> playersInLobby, string hostPlayerId)
-            : this("joinSuccess", new JoinSuccessServerPayload(playerId, playerName, gameId, playersInLobby, hostPlayerId)) { }
+        public JoinSuccessServerMessage(string roomCode, string playerId, string playerName, string gameId, List<PlayerInfo> playersInLobby, string hostPlayerId)
+            : this("joinSuccess", new JoinSuccessServerPayload(roomCode, playerId, playerName, gameId, playersInLobby, hostPlayerId)) { }
     }
 
     public record JoinFailedServerPayload(string Reason);
@@ -61,12 +61,12 @@ namespace MyCsApi.Models
             : this("gameStarted", new GameStartedServerPayload(playersInGame)) { }
     }
 
-    
+
     public record UseCardPayload(string CardName, string PlayerId, string TargetPlayerId);
 
     public record UseCardMessage(string Type, UseCardPayload Payload) : BaseWebSocketMessage(Type)
     {
-        public UseCardMessage(string cardName, string playerId, string targetPlayerId) 
+        public UseCardMessage(string cardName, string playerId, string targetPlayerId)
             : this("useCard", new UseCardPayload(cardName, playerId, targetPlayerId)) { }
     }
 
@@ -107,12 +107,20 @@ namespace MyCsApi.Models
             this("startGame", new StartGamePayload())
         { }
     }
-    
+
     public record PlayerSolvedPayload(string PlayerName, string PlayerId);
 
     public record PlayerSolvedMessage(string Type, PlayerSolvedPayload Payload) : BaseWebSocketMessage(Type)
     {
         public PlayerSolvedMessage(string playerName, string playerId)
             : this("playerSolved", new PlayerSolvedPayload(playerName, playerId)) { }
+    }
+
+    public record ProblemDetailsPayload(string Title, string Statement, string InputDescription, string OutputDescription, string Constraints);
+
+    public record NewProblemServerMessage(string Type, ProblemDetailsPayload Payload) : BaseWebSocketMessage(Type)
+    {
+        public NewProblemServerMessage(string title, string statement, string inputDesc, string outputDesc, string constraints)
+            : this("newProblem", new ProblemDetailsPayload(title, statement, inputDesc, outputDesc, constraints ?? string.Empty)) { }
     }
 }

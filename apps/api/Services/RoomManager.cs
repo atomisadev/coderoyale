@@ -25,15 +25,16 @@ namespace MyCsApi.Services
         private readonly ConcurrentDictionary<string, GameRoom> _rooms = new();
         private readonly ConcurrentDictionary<string, Player> _players = new();
         private readonly ILogger<RoomManager> _logger;
+        private readonly IProblemService _problemService;
         private static readonly JsonSerializerOptions _jsonSerializerOptions = new()
         {
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase
         };
 
-
-        public RoomManager(ILogger<RoomManager> logger)
+        public RoomManager(ILogger<RoomManager> logger, IProblemService problemService)
         {
             _logger = logger;
+            _problemService = problemService;
         }
 
         public ConcurrentDictionary<string, Player> GetPlayers()
@@ -109,6 +110,7 @@ namespace MyCsApi.Services
             _logger.LogInformation($"Player {playerName} ({playerId}) joined room {roomCode}. GameID: {room.GameId}");
 
             var joinSuccessResponse = new JoinSuccessServerMessage(
+                room.RoomCode,
                 playerId,
                 playerName,
                 room.GameId,
@@ -156,6 +158,25 @@ namespace MyCsApi.Services
             var playersInGame = room.Players.Select(p => new PlayerInfo(p.PlayerId, p.Name)).ToList();
             var gameStartedMessage = new GameStartedServerMessage(playersInGame);
             await BroadcastMessageToRoomAsync(room.RoomCode, gameStartedMessage);
+
+            var problem = _problemService.GetRandomProblem();
+            if (problem != null && problem.LastVersion?.Data != null)
+            {
+                var problemData = problem.LastVersion.Data;
+                var newProblemMessage = new NewProblemServerMessage(
+                    problem.Title ?? "Untitled Problem", // Provide default if null
+                    problemData.Statement ?? "No statement provided.", // Provide default if null
+                    problemData.InputDescription ?? "No input description provided.", // Provide default if null
+                    problemData.OutputDescription ?? "No output description provided.", // Provide default if null
+                    problemData.Constraints // This is handled by the constructor (constraints ?? string.Empty)
+                );
+                await BroadcastMessageToRoomAsync(room.RoomCode, newProblemMessage);
+                _logger.LogInformation($"Sent problem '{problem.Title ?? "Untitled Problem"}' to room {room.RoomCode}");
+            }
+            else
+            {
+                _logger.LogWarning($"Could not retrieve a problem for room {room.RoomCode}. No problem will be sent.");
+            }
         }
 
         public async Task PlayerDisconnectedAsync(string playerId, WebSocket webSocket)
