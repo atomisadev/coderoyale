@@ -15,12 +15,22 @@ export interface PlayerInfo {
   hp?: number;
 }
 
+export interface TestCase {
+  title: string;
+  isTest: boolean;
+  testIn: string;
+  testOut: string;
+  isValidator: boolean;
+  needValidation?: boolean;
+}
+
 export interface ProblemDetails {
   title: string;
   statement: string;
   inputDescription: string;
   outputDescription: string;
   constraints: string | null;
+  testCases?: TestCase[];
 }
 
 interface GameWebSocketState {
@@ -187,6 +197,7 @@ export const GameWebSocketProvider: React.FC<{ children: React.ReactNode }> = ({
                 inputDescription: message.payload.inputDescription,
                 outputDescription: message.payload.outputDescription,
                 constraints: message.payload.constraints,
+                testCases: message.payload.testCases || [],
               });
             }
             break;
@@ -250,13 +261,11 @@ export const GameWebSocketProvider: React.FC<{ children: React.ReactNode }> = ({
         console.log(
           "Attempting to reconnect due to send message on closed socket..."
         );
-        // connect();
       }
     }
   };
 
   const setExternalRoomCodeCallback = useCallback((code: string | null) => {
-    // setRoomCode(null);
     if (code) {
       //maybe reset player id or sm
     } else {
