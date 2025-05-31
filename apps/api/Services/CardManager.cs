@@ -29,10 +29,22 @@ public class CardManager : ICardManager
             case "Attack":
                 await SendPlayerUpdateMessageAsync(webSocket, playerId, targetPlayerId, 20, cardName);
                 break;
-            default:
+            case "SyntaxScramble":
+                await SendSyntaxScrambleMessageAsync(webSocket, targetPlayerId, cardName);
                 break;
         }
         
+    }
+
+    private async Task SendSyntaxScrambleMessageAsync(WebSocket webSocket, string targetPlayerId, string cardName)
+    {
+        if (webSocket.State == WebSocketState.Open)
+        {
+            var messageJson = $"{{\"playerId\": \"{targetPlayerId}\", \"cardName\": \"{cardName}\"}}";
+            var bytes = Encoding.UTF8.GetBytes(messageJson);
+            await webSocket.SendAsync(new ArraySegment<byte>(bytes), WebSocketMessageType.Text, true, CancellationToken.None);
+            _logger.LogDebug($"Sent message: {messageJson}");
+        }
     }
     
     private async Task SendPlayerUpdateMessageAsync(WebSocket webSocket, string playerId, string targetPlayerId, int dHp, string cardName)

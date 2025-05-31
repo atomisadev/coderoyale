@@ -115,4 +115,12 @@ namespace MyCsApi.Models
         public PlayerSolvedMessage(string playerName, string playerId)
             : this("playerSolved", new PlayerSolvedPayload(playerName, playerId)) { }
     }
+    
+    public record SyntaxScramblePayload(string TargetPlayerId);
+
+    public record SyntaxScrambleMessage(string Type, SyntaxScramblePayload Payload) : BaseWebSocketMessage(Type)
+    {
+        public SyntaxScrambleMessage(string targetPlayerId)
+            : this("SyntaxScramble", new SyntaxScramblePayload(targetPlayerId)) { }
+    }
 }
