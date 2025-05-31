@@ -1,6 +1,6 @@
 Project Directory: /home/ubuntu/coderoyalereal
 Output File: /home/ubuntu/coderoyalereal/reposcribe.txt
-Date: 2025-05-31T04:18:18.882Z
+Date: 2025-05-31T05:02:42.940Z
 
 File Tree:
 coderoyalereal/
@@ -70,6 +70,7 @@ coderoyalereal/
 │   └── api/
 │       ├── Models/
 │       │   ├── Player.cs
+│       │   ├── Problem.cs
 │       │   ├── GameRoom.cs
 │       │   └── WebSocketMessages.cs
 │       ├── package.json
@@ -88,6 +89,7 @@ coderoyalereal/
 │       ├── index.ts
 │       ├── Services/
 │       │   ├── CardManager.cs
+│       │   ├── ProblemService.cs
 │       │   └── RoomManager.cs
 │       ├── WebSockets/
 │       │   └── WebSocketMessageHandler.cs
@@ -173,6 +175,7 @@ apps/api/bin/
 *.ico
 *.lock
 *.woff
+problems.json
 -------------------- END .gitignore --------------------
 
 -------------------- button.tsx (path: packages/ui/src/button.tsx) --------------------
@@ -1140,7 +1143,7 @@ next-env.d.ts
 
 import React from "react";
 import { useGameWebSocket, PlayerInfo } from "@/context/game-socket-provider";
-import { Button } from "./ui/button";
+// import { Button } from "./ui/button";
 
 export const GameScreen: React.FC = () => {
   const {
@@ -1149,6 +1152,7 @@ export const GameScreen: React.FC = () => {
     playerId,
     playerName,
     error: wsError,
+    currentProblem,
   } = useGameWebSocket();
 
   if (wsError) {
@@ -1212,6 +1216,72 @@ export const GameScreen: React.FC = () => {
 
       <div
         style={{
+          marginTop: "20px",
+          padding: "20px",
+          border: "1px dashed #666",
+          minHeight: "300px", // Increased height for problem
+          textAlign: "left", // Align problem text to the left
+          backgroundColor: "rgba(255,255,255,0.05)", // Slightly different background for problem area
+          borderRadius: "4px",
+        }}
+      >
+        {currentProblem ? (
+          <>
+            <h3
+              style={{
+                marginTop: 0,
+                marginBottom: "15px",
+                textAlign: "center",
+              }}
+            >
+              {currentProblem.title}
+            </h3>
+
+            <h4>Problem Statement:</h4>
+            <p style={{ whiteSpace: "pre-wrap", marginBottom: "15px" }}>
+              {currentProblem.statement}
+            </p>
+
+            {currentProblem.inputDescription && (
+              <>
+                <hr style={{ margin: "10px 0", borderColor: "#555" }} />
+                <h4>Input Description:</h4>
+                <p style={{ whiteSpace: "pre-wrap", marginBottom: "15px" }}>
+                  {currentProblem.inputDescription}
+                </p>
+              </>
+            )}
+
+            {currentProblem.outputDescription && (
+              <>
+                <hr style={{ margin: "10px 0", borderColor: "#555" }} />
+                <h4>Output Description:</h4>
+                <p style={{ whiteSpace: "pre-wrap", marginBottom: "15px" }}>
+                  {currentProblem.outputDescription}
+                </p>
+              </>
+            )}
+
+            {currentProblem.constraints &&
+              currentProblem.constraints.trim() !== "" && (
+                <>
+                  <hr style={{ margin: "10px 0", borderColor: "#555" }} />
+                  <h4>Constraints:</h4>
+                  <p style={{ whiteSpace: "pre-wrap" }}>
+                    {currentProblem.constraints}
+                  </p>
+                </>
+              )}
+          </>
+        ) : (
+          <p style={{ textAlign: "center" }}>
+            Loading problem or problem not available...
+          </p>
+        )}
+      </div>
+
+      <div
+        style={{
           marginTop: "30px",
           padding: "20px",
           border: "1px dashed #666",
@@ -1270,7 +1340,7 @@ export const CreateJoinRoom: React.FC<CreateJoinRoomProps> = ({
       if (!params.code.trim()) {
         throw new Error("Room code cannot be empty.");
       }
-      setExternalRoomCode(params.code);
+      // setExternalRoomCode(params.code); // this caused me so many fucking problems
       sendMessage("joinRoom", {
         playerName: params.name,
         roomCode: params.code,
@@ -1278,7 +1348,7 @@ export const CreateJoinRoom: React.FC<CreateJoinRoomProps> = ({
     },
     onError: (err: Error) => {
       console.error("Join room error:", err.message);
-    },
+    },  
   });
 
   const handleCreateRoom = () => {
@@ -1576,6 +1646,14 @@ export interface PlayerInfo {
   name: string;
 }
 
+export interface ProblemDetails {
+  title: string;
+  statement: string;
+  inputDescription: string;
+  outputDescription: string;
+  constraints: string | null;
+}
+
 interface GameWebSocketState {
   isConnected: boolean;
   roomCode: string | null;
@@ -1588,6 +1666,7 @@ interface GameWebSocketState {
   isGameStarted: boolean;
   playersInGame: PlayerInfo[];
   hostPlayerId: string | null;
+  currentProblem: ProblemDetails | null;
   setExternalRoomCode: (code: string | null) => void;
 }
 
@@ -1613,6 +1692,9 @@ export const GameWebSocketProvider: React.FC<{ children: React.ReactNode }> = ({
   const [isGameStarted, setIsGameStarted] = useState(false);
   const [playersInGame, setPlayersInGame] = useState<PlayerInfo[]>([]);
   const [hostPlayerId, setHostPlayerId] = useState<string | null>(null);
+  const [currentProblem, setCurrentProblem] = useState<ProblemDetails | null>(
+    null
+  );
 
   const connect = useCallback(() => {
     if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
@@ -1649,9 +1731,11 @@ export const GameWebSocketProvider: React.FC<{ children: React.ReactNode }> = ({
             ]);
             setIsGameStarted(false);
             setPlayersInGame([]);
+            setCurrentProblem(null);
             setError(null);
             break;
           case "joinSuccess":
+            setRoomCode(message.payload.roomCode);
             setPlayerId(message.payload.playerId);
             setPlayerNameState(message.payload.playerName);
             setGameId(message.payload.gameId);
@@ -1660,10 +1744,12 @@ export const GameWebSocketProvider: React.FC<{ children: React.ReactNode }> = ({
               id: message.payload.playerId,
               name: message.payload.playerName,
             };
-            const otherPlayers = message.payload.playersInLobby as PlayerInfo[];
+            const otherPlayers = (message.payload.playersInLobby ||
+              []) as PlayerInfo[];
             setPlayersInLobby([selfPlayer, ...otherPlayers]);
             setIsGameStarted(false);
             setPlayersInGame([]);
+            setCurrentProblem(null);
             setError(null);
             break;
           case "joinFailed":
@@ -1671,6 +1757,7 @@ export const GameWebSocketProvider: React.FC<{ children: React.ReactNode }> = ({
             setRoomCode(null);
             setGameId(null);
             setPlayerId(null);
+            setCurrentProblem(null);
             break;
           case "playerJoinedLobby":
             setPlayersInLobby((prevPlayers) => {
@@ -1700,7 +1787,19 @@ export const GameWebSocketProvider: React.FC<{ children: React.ReactNode }> = ({
             setIsGameStarted(true);
             setPlayersInGame(message.payload.playersInGame as PlayerInfo[]);
             setPlayersInLobby([]);
+            setCurrentProblem(null);
             setError(null);
+            break;
+          case "newProblem":
+            if (message.payload) {
+              setCurrentProblem({
+                title: message.payload.title,
+                statement: message.payload.statement,
+                inputDescription: message.payload.inputDescription,
+                outputDescription: message.payload.outputDescription,
+                constraints: message.payload.constraints,
+              });
+            }
             break;
           default:
             console.warn("Unhandled WebSocket message type:", message.type);
@@ -1731,6 +1830,7 @@ export const GameWebSocketProvider: React.FC<{ children: React.ReactNode }> = ({
       setHostPlayerId(null);
       setIsGameStarted(false);
       setPlayersInGame([]);
+      setCurrentProblem(null);
       if (!event.wasClean) {
         setError("WebSocket connection closed unexpectedly. Please try again.");
       }
@@ -1761,13 +1861,25 @@ export const GameWebSocketProvider: React.FC<{ children: React.ReactNode }> = ({
         console.log(
           "Attempting to reconnect due to send message on closed socket..."
         );
-        connect();
+        // connect();
       }
     }
   };
 
   const setExternalRoomCodeCallback = useCallback((code: string | null) => {
-    setRoomCode(null);
+    // setRoomCode(null);
+    if (code) {
+      //maybe reset player id or sm
+    } else {
+      setGameId(null);
+      setPlayerId(null);
+      setPlayerNameState(null);
+      setPlayersInLobby([]);
+      setHostPlayerId(null);
+      setIsGameStarted(false);
+      setPlayersInGame([]);
+      setCurrentProblem(null);
+    }
   }, []);
 
   const state = {
@@ -1782,6 +1894,7 @@ export const GameWebSocketProvider: React.FC<{ children: React.ReactNode }> = ({
     isGameStarted,
     playersInGame,
     hostPlayerId,
+    currentProblem,
     setExternalRoomCode: setExternalRoomCodeCallback,
   };
 
@@ -1790,9 +1903,7 @@ export const GameWebSocketProvider: React.FC<{ children: React.ReactNode }> = ({
   };
 
   return (
-    <GameWebSocketContext.Provider
-      value={{ ...state, setExternalRoomCode } as any}
-    >
+    <GameWebSocketContext.Provider value={state as any}>
       {children}
     </GameWebSocketContext.Provider>
   );
@@ -2004,6 +2115,66 @@ namespace MyCsApi.Models
 }
 -------------------- END Player.cs --------------------
 
+-------------------- Problem.cs (path: apps/api/Models/Problem.cs) --------------------
+using System.Collections.Generic;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+
+namespace MyCsApi.Models
+{
+    public class ProblemTestCase
+    {
+        [JsonPropertyName("title")]
+        public JsonElement? Title { get; set; }
+
+        [JsonPropertyName("isTest")]
+        public bool IsTest { get; set; }
+
+        [JsonPropertyName("testIn")]
+        public string? TestIn { get; set; }
+
+        [JsonPropertyName("testOut")]
+        public string? TestOut { get; set; }
+
+        [JsonPropertyName("isValidator")]
+        public bool IsValidator { get; set; }
+    }
+
+    public class ProblemData
+    {
+        [JsonPropertyName("statement")]
+        public string? Statement { get; set; }
+
+        [JsonPropertyName("testCases")]
+        public List<ProblemTestCase> TestCases { get; set; } = new();
+
+        [JsonPropertyName("constraints")]
+        public string? Constraints { get; set; }
+
+        [JsonPropertyName("inputDescription")]
+        public string? InputDescription { get; set; }
+
+        [JsonPropertyName("outputDescription")]
+        public string? OutputDescription { get; set; }
+    }
+
+    public class ProblemLastVersion
+    {
+        [JsonPropertyName("data")]
+        public ProblemData? Data { get; set; }
+    }
+
+    public class Problem
+    {
+        [JsonPropertyName("title")]
+        public string? Title { get; set; }
+
+        [JsonPropertyName("lastVersion")]
+        public ProblemLastVersion? LastVersion { get; set; }
+    }
+}
+-------------------- END Problem.cs --------------------
+
 -------------------- GameRoom.cs (path: apps/api/Models/GameRoom.cs) --------------------
 using System.Collections.Generic;
 using System.Linq;
@@ -2110,12 +2281,12 @@ namespace MyCsApi.Models
             : this("gameStarted", new GameStartedServerPayload(playersInGame)) { }
     }
 
-    
+
     public record UseCardPayload(string CardName, string PlayerId, string TargetPlayerId);
 
     public record UseCardMessage(string Type, UseCardPayload Payload) : BaseWebSocketMessage(Type)
     {
-        public UseCardMessage(string cardName, string playerId, string targetPlayerId) 
+        public UseCardMessage(string cardName, string playerId, string targetPlayerId)
             : this("useCard", new UseCardPayload(cardName, playerId, targetPlayerId)) { }
     }
 
@@ -2156,13 +2327,21 @@ namespace MyCsApi.Models
             this("startGame", new StartGamePayload())
         { }
     }
-    
+
     public record PlayerSolvedPayload(string PlayerName, string PlayerId);
 
     public record PlayerSolvedMessage(string Type, PlayerSolvedPayload Payload) : BaseWebSocketMessage(Type)
     {
         public PlayerSolvedMessage(string playerName, string playerId)
             : this("playerSolved", new PlayerSolvedPayload(playerName, playerId)) { }
+    }
+
+    public record ProblemDetailsPayload(string Title, string Statement, string InputDescription, string OutputDescription, string Constraints);
+
+    public record NewProblemServerMessage(string Type, ProblemDetailsPayload Payload) : BaseWebSocketMessage(Type)
+    {
+        public NewProblemServerMessage(string title, string statement, string inputDesc, string outputDesc, string constraints)
+            : this("newProblem", new ProblemDetailsPayload(title, statement, inputDesc, outputDesc, constraints ?? string.Empty)) { }
     }
 }
 -------------------- END WebSocketMessages.cs --------------------
@@ -2216,6 +2395,11 @@ public class GameController : ControllerBase
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.4" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Update="problems.json">  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
 </Project>
@@ -2363,6 +2547,7 @@ builder.Services.AddEndpointsApiExplorer();
 
 builder.Services.AddSingleton<IRoomManager, RoomManager>();
 builder.Services.AddSingleton<ICardManager, CardManager>();
+builder.Services.AddSingleton<IProblemService, ProblemService>();
 builder.Services.AddSingleton<WebSocketMessageHandler>();
 
 
@@ -2478,6 +2663,73 @@ public class CardManager : ICardManager
 }
 -------------------- END CardManager.cs --------------------
 
+-------------------- ProblemService.cs (path: apps/api/Services/ProblemService.cs) --------------------
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Text.Json;
+using System.Threading.Tasks;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using MyCsApi.Models;
+
+namespace MyCsApi.Services
+{
+    public interface IProblemService
+    {
+        Problem? GetRandomProblem();
+    }
+
+    public class ProblemService : IProblemService
+    {
+        private List<Problem> _problems = new();
+        private readonly Random _random = new();
+        private readonly ILogger<ProblemService> _logger;
+
+        public ProblemService(ILogger<ProblemService> logger, IHostEnvironment env)
+        {
+            _logger = logger;
+            var filePath = Path.Combine(env.ContentRootPath, "problems.json");
+
+            try
+            {
+                if (File.Exists(filePath))
+                {
+                    var jsonString = File.ReadAllText(filePath);
+                    var options = new JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true,
+                    };
+                    _problems = JsonSerializer.Deserialize<List<Problem>>(jsonString, options) ?? new List<Problem>();
+                    _logger.LogInformation($"Successfully loaded {_problems.Count} problems from {filePath}.");
+                }
+                else
+                {
+                    _logger.LogWarning($"Problem file not found at {filePath}. No problem will be available.");
+                    _problems = new List<Problem>();
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error loading or deserializing problems from {filePath}.");
+                _problems = new List<Problem>();
+            }
+        }
+
+        public Problem? GetRandomProblem()
+        {
+            if (_problems == null || !_problems.Any())
+            {
+                _logger.LogWarning("Attempted to get a random problem, but no problems are loaded.");
+                return null;
+            }
+            return _problems[_random.Next(_problems.Count)];
+        }
+    }
+}
+-------------------- END ProblemService.cs --------------------
+
 -------------------- RoomManager.cs (path: apps/api/Services/RoomManager.cs) --------------------
 using System;
 using System.Collections.Concurrent;
@@ -2497,6 +2749,7 @@ namespace MyCsApi.Services
     {
         public Task CreateRoomAsync(WebSocket webSocket, string playerId, string playerName);
         public Task JoinRoomAsync(WebSocket webSocket, string playerId, string playerName, string roomCode);
+        public Task StartGameAsync(string playerId);
         public Task PlayerDisconnectedAsync(string playerId, WebSocket webSocket);
         public ConcurrentDictionary<string, Player> GetPlayers();
     }
@@ -2505,15 +2758,16 @@ namespace MyCsApi.Services
         private readonly ConcurrentDictionary<string, GameRoom> _rooms = new();
         private readonly ConcurrentDictionary<string, Player> _players = new();
         private readonly ILogger<RoomManager> _logger;
+        private readonly IProblemService _problemService;
         private static readonly JsonSerializerOptions _jsonSerializerOptions = new()
         {
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase
         };
 
-
-        public RoomManager(ILogger<RoomManager> logger)
+        public RoomManager(ILogger<RoomManager> logger, IProblemService problemService)
         {
             _logger = logger;
+            _problemService = problemService;
         }
 
         public ConcurrentDictionary<string, Player> GetPlayers()
@@ -2636,6 +2890,25 @@ namespace MyCsApi.Services
             var playersInGame = room.Players.Select(p => new PlayerInfo(p.PlayerId, p.Name)).ToList();
             var gameStartedMessage = new GameStartedServerMessage(playersInGame);
             await BroadcastMessageToRoomAsync(room.RoomCode, gameStartedMessage);
+
+            var problem = _problemService.GetRandomProblem();
+            if (problem != null && problem.LastVersion?.Data != null)
+            {
+                var problemData = problem.LastVersion.Data;
+                var newProblemMessage = new NewProblemServerMessage(
+                    problem.Title ?? "Untitled Problem", // Provide default if null
+                    problemData.Statement ?? "No statement provided.", // Provide default if null
+                    problemData.InputDescription ?? "No input description provided.", // Provide default if null
+                    problemData.OutputDescription ?? "No output description provided.", // Provide default if null
+                    problemData.Constraints // This is handled by the constructor (constraints ?? string.Empty)
+                );
+                await BroadcastMessageToRoomAsync(room.RoomCode, newProblemMessage);
+                _logger.LogInformation($"Sent problem '{problem.Title ?? "Untitled Problem"}' to room {room.RoomCode}");
+            }
+            else
+            {
+                _logger.LogWarning($"Could not retrieve a problem for room {room.RoomCode}. No problem will be sent.");
+            }
         }
 
         public async Task PlayerDisconnectedAsync(string playerId, WebSocket webSocket)
@@ -2703,8 +2976,8 @@ namespace MyCsApi.WebSockets
 {
     public class WebSocketMessageHandler
     {
-        private readonly RoomManager _roomManager;
-        private readonly CardManager _cardManager;
+        private readonly IRoomManager _roomManager;
+        private readonly ICardManager _cardManager;
         private readonly ILogger<WebSocketMessageHandler> _logger;
         private static readonly JsonSerializerOptions _jsonSerializerOptions = new()
         {
@@ -2712,7 +2985,7 @@ namespace MyCsApi.WebSockets
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase
         };
 
-        public WebSocketMessageHandler(RoomManager roomManager, CardManager cardManager, ILogger<WebSocketMessageHandler> logger)
+        public WebSocketMessageHandler(IRoomManager roomManager, ICardManager cardManager, ILogger<WebSocketMessageHandler> logger)
         {
             _roomManager = roomManager;
             _cardManager = cardManager;

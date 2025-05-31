@@ -42,7 +42,7 @@ export const CreateJoinRoom: React.FC<CreateJoinRoomProps> = ({
       if (!params.code.trim()) {
         throw new Error("Room code cannot be empty.");
       }
-      setExternalRoomCode(params.code);
+      // setExternalRoomCode(params.code); // this caused me so many fucking problems
       sendMessage("joinRoom", {
         playerName: params.name,
         roomCode: params.code,
@@ -50,7 +50,7 @@ export const CreateJoinRoom: React.FC<CreateJoinRoomProps> = ({
     },
     onError: (err: Error) => {
       console.error("Join room error:", err.message);
-    },
+    },  
   });
 
   const handleCreateRoom = () => {
