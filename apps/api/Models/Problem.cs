@@ -7,7 +7,7 @@ namespace MyCsApi.Models
     public class ProblemTestCase
     {
         [JsonPropertyName("title")]
-        public JsonElement? Title { get; set; }
+        public string? Title { get; set; }
 
         [JsonPropertyName("isTest")]
         public bool IsTest { get; set; }

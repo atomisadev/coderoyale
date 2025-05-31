@@ -42,6 +42,8 @@ apps/api/bin/
 *.ico
 *.lock
 *.woff
+*.png
+# problems.json
 
 *.AssemblyInfo.cs
 *.cache

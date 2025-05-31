@@ -163,12 +163,14 @@ namespace MyCsApi.Services
             if (problem != null && problem.LastVersion?.Data != null)
             {
                 var problemData = problem.LastVersion.Data;
+                var testCasesForMessage = problemData.TestCases ?? new List<ProblemTestCase>();
                 var newProblemMessage = new NewProblemServerMessage(
                     problem.Title ?? "Untitled Problem", // Provide default if null
                     problemData.Statement ?? "No statement provided.", // Provide default if null
                     problemData.InputDescription ?? "No input description provided.", // Provide default if null
                     problemData.OutputDescription ?? "No output description provided.", // Provide default if null
-                    problemData.Constraints // This is handled by the constructor (constraints ?? string.Empty)
+                    problemData.Constraints, // This is handled by the constructor (constraints ?? string.Empty)
+                    testCasesForMessage
                 );
                 await BroadcastMessageToRoomAsync(room.RoomCode, newProblemMessage);
                 _logger.LogInformation($"Sent problem '{problem.Title ?? "Untitled Problem"}' to room {room.RoomCode}");

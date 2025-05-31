@@ -1,6 +1,6 @@
 Project Directory: /home/ubuntu/coderoyalereal
 Output File: /home/ubuntu/coderoyalereal/reposcribe.txt
-Date: 2025-05-31T05:02:42.940Z
+Date: 2025-05-31T15:30:33.938Z
 
 File Tree:
 coderoyalereal/
@@ -38,7 +38,6 @@ coderoyalereal/
 │   │   ├── package.json
 │   │   ├── components.json
 │   │   ├── app/
-│   │   │   ├── page.module.css
 │   │   │   ├── globals.css
 │   │   │   ├── page.tsx
 │   │   │   ├── fonts/
@@ -49,7 +48,11 @@ coderoyalereal/
 │   │   │   ├── game-screen.tsx
 │   │   │   ├── create-join-room.tsx
 │   │   │   ├── ui/
-│   │   │   │   └── button.tsx
+│   │   │   │   ├── button.tsx
+│   │   │   │   ├── badge.tsx
+│   │   │   │   ├── tabs.tsx
+│   │   │   │   ├── scroll-area.tsx
+│   │   │   │   └── card.tsx
 │   │   │   └── lobby.tsx
 │   │   ├── context/
 │   │   │   ├── game-socket-provider.tsx
@@ -57,6 +60,7 @@ coderoyalereal/
 │   │   ├── next-env.d.ts
 │   │   ├── public/
 │   │   │   ├── next.svg
+│   │   │   ├── cards/
 │   │   │   ├── turborepo-light.svg
 │   │   │   ├── window.svg
 │   │   │   ├── vercel.svg
@@ -72,10 +76,12 @@ coderoyalereal/
 │       │   ├── Player.cs
 │       │   ├── Problem.cs
 │       │   ├── GameRoom.cs
-│       │   └── WebSocketMessages.cs
+│       │   ├── WebSocketMessages.cs
+│       │   └── Judge0Settings.cs
 │       ├── package.json
 │       ├── Controllers/
-│       │   └── GameController.cs
+│       │   ├── GameController.cs
+│       │   └── JudgeController.cs
 │       ├── MyCsApi.csproj
 │       ├── .gitignore
 │       ├── Item.cs
@@ -90,7 +96,8 @@ coderoyalereal/
 │       ├── Services/
 │       │   ├── CardManager.cs
 │       │   ├── ProblemService.cs
-│       │   └── RoomManager.cs
+│       │   ├── RoomManager.cs
+│       │   └── JudgeService.cs
 │       ├── WebSockets/
 │       │   └── WebSocketMessageHandler.cs
 │       └── README.md
@@ -175,7 +182,11 @@ apps/api/bin/
 *.ico
 *.lock
 *.woff
+*.png
 problems.json
+
+*.AssemblyInfo.cs
+*.cache
 -------------------- END .gitignore --------------------
 
 -------------------- button.tsx (path: packages/ui/src/button.tsx) --------------------
@@ -586,7 +597,10 @@ export default nextConfig;
     "check-types": "tsc --noEmit"
   },
   "dependencies": {
+    "@monaco-editor/react": "^4.7.0",
+    "@radix-ui/react-scroll-area": "^1.2.9",
     "@radix-ui/react-slot": "^1.2.3",
+    "@radix-ui/react-tabs": "^1.1.12",
     "@repo/ui": "*",
     "@tailwindcss/postcss": "^4.1.8",
     "@tanstack/react-query": "^5.79.0",
@@ -638,197 +652,6 @@ export default nextConfig;
 }
 -------------------- END components.json --------------------
 
--------------------- page.module.css (path: apps/web/app/page.module.css) --------------------
-.page {
-  --gray-rgb: 0, 0, 0;
-  --gray-alpha-200: rgba(var(--gray-rgb), 0.08);
-  --gray-alpha-100: rgba(var(--gray-rgb), 0.05);
-
-  --button-primary-hover: #383838;
-  --button-secondary-hover: #f2f2f2;
-
-  display: grid;
-  grid-template-rows: 20px 1fr 20px;
-  align-items: center;
-  justify-items: center;
-  min-height: 100svh;
-  padding: 80px;
-  gap: 64px;
-  font-synthesis: none;
-}
-
-@media (prefers-color-scheme: dark) {
-  .page {
-    --gray-rgb: 255, 255, 255;
-    --gray-alpha-200: rgba(var(--gray-rgb), 0.145);
-    --gray-alpha-100: rgba(var(--gray-rgb), 0.06);
-
-    --button-primary-hover: #ccc;
-    --button-secondary-hover: #1a1a1a;
-  }
-}
-
-.main {
-  display: flex;
-  flex-direction: column;
-  gap: 32px;
-  grid-row-start: 2;
-}
-
-.main ol {
-  font-family: var(--font-geist-mono);
-  padding-left: 0;
-  margin: 0;
-  font-size: 14px;
-  line-height: 24px;
-  letter-spacing: -0.01em;
-  list-style-position: inside;
-}
-
-.main li:not(:last-of-type) {
-  margin-bottom: 8px;
-}
-
-.main code {
-  font-family: inherit;
-  background: var(--gray-alpha-100);
-  padding: 2px 4px;
-  border-radius: 4px;
-  font-weight: 600;
-}
-
-.ctas {
-  display: flex;
-  gap: 16px;
-}
-
-.ctas a {
-  appearance: none;
-  border-radius: 128px;
-  height: 48px;
-  padding: 0 20px;
-  border: none;
-  font-family: var(--font-geist-sans);
-  border: 1px solid transparent;
-  transition: background 0.2s, color 0.2s, border-color 0.2s;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 16px;
-  line-height: 20px;
-  font-weight: 500;
-}
-
-a.primary {
-  background: var(--foreground);
-  color: var(--background);
-  gap: 8px;
-}
-
-a.secondary {
-  border-color: var(--gray-alpha-200);
-  min-width: 180px;
-}
-
-button.secondary {
-  appearance: none;
-  border-radius: 128px;
-  height: 48px;
-  padding: 0 20px;
-  border: none;
-  font-family: var(--font-geist-sans);
-  border: 1px solid transparent;
-  transition: background 0.2s, color 0.2s, border-color 0.2s;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 16px;
-  line-height: 20px;
-  font-weight: 500;
-  background: transparent;
-  border-color: var(--gray-alpha-200);
-  min-width: 180px;
-}
-
-.footer {
-  font-family: var(--font-geist-sans);
-  grid-row-start: 3;
-  display: flex;
-  gap: 24px;
-}
-
-.footer a {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.footer img {
-  flex-shrink: 0;
-}
-
-/* Enable hover only on non-touch devices */
-@media (hover: hover) and (pointer: fine) {
-  a.primary:hover {
-    background: var(--button-primary-hover);
-    border-color: transparent;
-  }
-
-  a.secondary:hover {
-    background: var(--button-secondary-hover);
-    border-color: transparent;
-  }
-
-  .footer a:hover {
-    text-decoration: underline;
-    text-underline-offset: 4px;
-  }
-}
-
-@media (max-width: 600px) {
-  .page {
-    padding: 32px;
-    padding-bottom: 80px;
-  }
-
-  .main {
-    align-items: center;
-  }
-
-  .main ol {
-    text-align: center;
-  }
-
-  .ctas {
-    flex-direction: column;
-  }
-
-  .ctas a {
-    font-size: 14px;
-    height: 40px;
-    padding: 0 16px;
-  }
-
-  a.secondary {
-    min-width: auto;
-  }
-
-  .footer {
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: center;
-  }
-}
-
-@media (prefers-color-scheme: dark) {
-  .logo {
-    filter: invert();
-  }
-}
--------------------- END page.module.css --------------------
-
 -------------------- globals.css (path: apps/web/app/globals.css) --------------------
 @import "tailwindcss";
 @import "tw-animate-css";
@@ -838,7 +661,11 @@ button.secondary {
 html,
 body {
   max-width: 100vw;
-  overflow-x: hidden;
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  overflow: hidden;
+  background-color: #0e0e0e;
 }
 
 * {
@@ -909,41 +736,7 @@ a {
 
 :root {
   --radius: 0.625rem;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.141 0.005 285.823);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.141 0.005 285.823);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.141 0.005 285.823);
-  --primary: oklch(0.21 0.006 285.885);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.967 0.001 286.375);
-  --secondary-foreground: oklch(0.21 0.006 285.885);
-  --muted: oklch(0.967 0.001 286.375);
-  --muted-foreground: oklch(0.552 0.016 285.938);
-  --accent: oklch(0.967 0.001 286.375);
-  --accent-foreground: oklch(0.21 0.006 285.885);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.92 0.004 286.32);
-  --input: oklch(0.92 0.004 286.32);
-  --ring: oklch(0.705 0.015 286.067);
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.141 0.005 285.823);
-  --sidebar-primary: oklch(0.21 0.006 285.885);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.967 0.001 286.375);
-  --sidebar-accent-foreground: oklch(0.21 0.006 285.885);
-  --sidebar-border: oklch(0.92 0.004 286.32);
-  --sidebar-ring: oklch(0.705 0.015 286.067);
-}
-
-.dark {
-  --background: oklch(0.141 0.005 285.823);
+  --background: #0e0e0e;
   --foreground: oklch(0.985 0 0);
   --card: oklch(0.21 0.006 285.885);
   --card-foreground: oklch(0.985 0 0);
@@ -990,7 +783,6 @@ a {
 "use client";
 
 import React, { Suspense } from "react";
-import styles from "./page.module.css";
 import { useGameWebSocket } from "../context/game-socket-provider";
 import { CreateJoinRoom } from "../components/create-join-room";
 import { Lobby } from "../components/lobby";
@@ -1008,9 +800,9 @@ function HomePageContent() {
   const roomCodeFromUrl = searchParams.get("roomCode");
 
   return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <h1>Code Royale</h1>
+    <div>
+      <main>
+        {/* <h1>Code Royale</h1> */}
         {!isConnected && (
           <p style={{ color: "orange" }}>Connecting to server...</p>
         )}
@@ -1141,154 +933,472 @@ next-env.d.ts
 -------------------- game-screen.tsx (path: apps/web/components/game-screen.tsx) --------------------
 "use client";
 
-import React from "react";
-import { useGameWebSocket, PlayerInfo } from "@/context/game-socket-provider";
-// import { Button } from "./ui/button";
+import React, { useState, useEffect } from "react";
+import {
+  useGameWebSocket,
+  PlayerInfo,
+  ProblemDetails, // Assuming TestCase is part of ProblemDetails or imported
+  TestCase,     // Make sure TestCase is exported and available
+} from "@/context/game-socket-provider";
+import Editor from "@monaco-editor/react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+
+interface PlayerWithHP extends PlayerInfo {
+  hp: number;
+}
+
+// Define structure for API communication (matches C# backend)
+interface ApiProblemTestCase {
+  title: string;
+  stdin: string | null; // Allow null if some test cases might not have input
+  expectedOutput: string | null; // Allow null
+}
+interface JudgeApiSubmissionRequest {
+  sourceCode: string;
+  languageId: number;
+  testCases: ApiProblemTestCase[];
+}
+interface TestCaseExecutionResult {
+  title: string;
+  passed: boolean;
+  actualOutput?: string;
+  expectedOutput?: string;
+  status: string;
+  judge0StatusId: number;
+  errorMessage?: string;
+  time?: string;
+  memory?: number;
+}
+interface CodeSubmissionResult {
+  results: TestCaseExecutionResult[];
+  overallStatus: string;
+  compilationOutput?: string;
+  errorOutput?: string;
+}
+
 
 export const GameScreen: React.FC = () => {
   const {
     playersInGame,
     roomCode,
     playerId,
-    playerName,
     error: wsError,
     currentProblem,
+    // sendMessage, // We might not need sendMessage for code submission if using HTTP API
   } = useGameWebSocket();
+
+  const [code, setCode] = useState<string>(
+    "# Write your Python code here\n# Read input using input()\n# Print output using print()\n\nprint('Hello World!')"
+  );
+  const [submissionStatus, setSubmissionStatus] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const [playersWithHP, setPlayersWithHP] = useState<PlayerWithHP[]>([]);
+  const [terminalOutput, setTerminalOutput] = useState<string[]>([]);
+
+  useEffect(() => {
+    if (playersInGame.length > 0) {
+      const playersHP = playersInGame.map((player) => ({
+        ...player,
+        hp: 100, // Or fetched from context if HP is managed there
+      }));
+      setPlayersWithHP(playersHP);
+    }
+  }, [playersInGame]);
+
+  useEffect(() => {
+    // Set initial code if problem provides a template, or on new problem
+    if (currentProblem?.title) { // Reset for new problem
+        // You might want to add a default template to currentProblem or a specific field for it
+        // For now, just resetting to default Python starter.
+        setCode("# Write your Python code here\n# Read input using input()\n# Print output using print()\n\nprint('Hello World!')");
+        setTerminalOutput([`Problem: ${currentProblem.title} loaded.`,'Ready for submission.']);
+        setSubmissionStatus(null);
+    }
+  }, [currentProblem?.title]);
+
 
   if (wsError) {
     return (
-      <div style={{ padding: "20px", textAlign: "center", color: "red" }}>
+      <div className="flex items-center justify-center h-screen text-red-500 bg-[#0E0E0E]">
         Error: {wsError}
       </div>
     );
   }
 
+  const handleSubmitCode = async () => {
+    if (!currentProblem || !playerId || !code.trim()) return;
+
+    setIsSubmitting(true);
+    setSubmissionStatus("Submitting to Judge...");
+    setTerminalOutput([`> Submitting code for ${currentProblem.title}...`]);
+
+    const validatorTestCases = currentProblem.testCases?.filter(
+      (tc) => tc.isValidator && tc.testIn !== undefined && tc.testOut !== undefined // Ensure testIn/Out are not undefined
+    ) || [];
+
+    if (validatorTestCases.length === 0) {
+      setTerminalOutput((prev) => [...prev, "> No validator test cases found for this problem."]);
+      setSubmissionStatus("No validators");
+      setIsSubmitting(false);
+      return;
+    }
+
+    const apiPayload: JudgeApiSubmissionRequest = {
+      sourceCode: code,
+      languageId: parseInt(process.env.NEXT_PUBLIC_JUDGE0_PYTHON_LANG_ID || "71"), // Default to Python 3.8
+      testCases: validatorTestCases.map((tc, index) => ({
+        title: tc.title || `Validator ${index + 1}`,
+        stdin: tc.testIn,
+        expectedOutput: tc.testOut,
+      })),
+    };
+
+    try {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5217";
+      const response = await fetch(`${apiUrl}/api/judge/submit`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(apiPayload),
+      });
+
+      const newTerminalOutput: string[] = [...terminalOutput]; // Start with the "Submitting..." message
+
+      if (!response.ok) {
+        const errorData = await response.text();
+        newTerminalOutput.push(`> API Error: ${response.status} - ${errorData}`);
+        setSubmissionStatus(`API Error: ${response.status}`);
+        setTerminalOutput(newTerminalOutput);
+        setIsSubmitting(false);
+        return;
+      }
+
+      const result: CodeSubmissionResult = await response.json();
+      newTerminalOutput.push(`> Overall Status: ${result.overallStatus}`);
+
+      if (result.compilationOutput) {
+        newTerminalOutput.push(`> Compilation Output:`);
+        newTerminalOutput.push(result.compilationOutput);
+      }
+      if (result.errorOutput && !result.compilationOutput) { // Show general runtime errors if not compilation
+        newTerminalOutput.push(`> Execution Error:`);
+        newTerminalOutput.push(result.errorOutput);
+      }
+
+      result.results.forEach((tcResult) => {
+        newTerminalOutput.push("---");
+        newTerminalOutput.push(`> Test Case: ${tcResult.title}`);
+        newTerminalOutput.push(`> Status: ${tcResult.passed ? "PASSED ✅" : `FAILED ❌ (${tcResult.status})`}`);
+        if (!tcResult.passed) {
+          newTerminalOutput.push(`> Expected: "${tcResult.expectedOutput}"`);
+          newTerminalOutput.push(`> Got: "${tcResult.actualOutput}"`);
+          if (tcResult.errorMessage && tcResult.judge0StatusId !== 4) { // Don't show error message if it's just "Wrong Answer"
+            newTerminalOutput.push(`> Details: ${tcResult.errorMessage}`);
+          }
+        }
+         if(tcResult.time) newTerminalOutput.push(`> Time: ${tcResult.time}s`);
+         if(tcResult.memory) newTerminalOutput.push(`> Memory: ${tcResult.memory} KB`);
+      });
+
+      setTerminalOutput(newTerminalOutput);
+      setSubmissionStatus(result.overallStatus);
+    } catch (error: any) {
+      console.error("Error submitting code:", error);
+      setTerminalOutput((prev) => [...prev, `> Client-side Error: ${error.message}`]);
+      setSubmissionStatus("Client Error");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const HPBar: React.FC<{ hp: number }> = ({ hp }) => (
+    <div className="w-16 h-2 bg-gray-800 rounded-full overflow-hidden">
+      <div
+        className={`h-full transition-all duration-300 ${
+          hp > 60 ? "bg-green-500" : hp > 30 ? "bg-orange-500" : "bg-red-500"
+        }`}
+        style={{ width: `${hp}%` }}
+      />
+    </div>
+  );
+
+  // Use currentProblem.testCases directly if they include the "isTest" flag as per your JSON
+   const getExampleTestCases = () => {
+     if (!currentProblem?.testCases) return [];
+     // Filter for example tests (isTest: true)
+     return currentProblem.testCases.filter((tc) => tc.isTest);
+   };
+
+  const playerCards = [
+    { id: 1, name: "Attack", cost: 2, description: "Deal 20 damage" },
+    { id: 2, name: "Shield", cost: 1, description: "Block attack" },
+    // ... other cards
+  ];
+
   return (
-    <div
-      style={{
-        padding: "20px",
-        textAlign: "center",
-        border: "1px solid #444",
-        borderRadius: "8px",
-        backgroundColor: "rgba(0,0,0,0.2)",
-        maxWidth: "800px",
-        margin: "20px auto",
-      }}
-    >
-      <h2>Game In Progress! - Room: {roomCode}</h2>
-      <p>Player: {playerName || playerId}</p>
-
-      <div style={{ marginTop: "20px" }}>
-        <h3>Players Currently In Game: ({playersInGame.length})</h3>
-        <ul
-          style={{
-            listStyleType: "none",
-            padding: 0,
-            maxHeight: "300px",
-            overflowY: "auto",
-          }}
-        >
-          {playersInGame.map((player: PlayerInfo) => (
-            <li
-              key={player.id}
-              style={{
-                padding: "10px",
-                margin: "5px 0",
-                border: "1px solid #555",
-                borderRadius: "4px",
-                backgroundColor:
-                  player.id === playerId
-                    ? "hsl(var(--primary)/0.3)"
-                    : "hsl(var(--secondary)/0.2)",
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-              }}
-            >
-              <span>
-                {player.name} {player.id === playerId ? "(You)" : ""}
-              </span>
-              <span>Score: 0</span>
-            </li>
-          ))}
-        </ul>
-      </div>
-
-      <div
-        style={{
-          marginTop: "20px",
-          padding: "20px",
-          border: "1px dashed #666",
-          minHeight: "300px", // Increased height for problem
-          textAlign: "left", // Align problem text to the left
-          backgroundColor: "rgba(255,255,255,0.05)", // Slightly different background for problem area
-          borderRadius: "4px",
-        }}
-      >
-        {currentProblem ? (
-          <>
-            <h3
-              style={{
-                marginTop: 0,
-                marginBottom: "15px",
-                textAlign: "center",
-              }}
-            >
-              {currentProblem.title}
-            </h3>
-
-            <h4>Problem Statement:</h4>
-            <p style={{ whiteSpace: "pre-wrap", marginBottom: "15px" }}>
-              {currentProblem.statement}
-            </p>
-
-            {currentProblem.inputDescription && (
-              <>
-                <hr style={{ margin: "10px 0", borderColor: "#555" }} />
-                <h4>Input Description:</h4>
-                <p style={{ whiteSpace: "pre-wrap", marginBottom: "15px" }}>
-                  {currentProblem.inputDescription}
-                </p>
-              </>
-            )}
-
-            {currentProblem.outputDescription && (
-              <>
-                <hr style={{ margin: "10px 0", borderColor: "#555" }} />
-                <h4>Output Description:</h4>
-                <p style={{ whiteSpace: "pre-wrap", marginBottom: "15px" }}>
-                  {currentProblem.outputDescription}
-                </p>
-              </>
-            )}
-
-            {currentProblem.constraints &&
-              currentProblem.constraints.trim() !== "" && (
-                <>
-                  <hr style={{ margin: "10px 0", borderColor: "#555" }} />
-                  <h4>Constraints:</h4>
-                  <p style={{ whiteSpace: "pre-wrap" }}>
-                    {currentProblem.constraints}
-                  </p>
-                </>
+    <div className="h-screen w-screen bg-[#0E0E0E] text-white p-4">
+      <div className="grid grid-cols-4 grid-rows-4 gap-4 h-full">
+        {/* Problem and Test Cases Card */}
+        <Card className="col-span-2 row-span-2 border-gray-700 overflow-hidden flex flex-col">
+          <CardHeader className="pb-3 flex-shrink-0">
+            <CardTitle className="text-lg p-2">
+              {currentProblem?.title || "Loading Problem..."}
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="flex-1 overflow-auto"> {/* Use overflow-auto here */}
+            <ScrollArea className="h-full pr-2"> {/* ScrollArea now direct child */}
+              {currentProblem ? (
+                <div className="space-y-6 ">
+                  <div>
+                    <h4 className="font-medium mb-3 text-orange-400">Problem Statement:</h4>
+                    <p className="whitespace-pre-wrap text-gray-300 text-sm leading-relaxed break-words">
+                      {currentProblem.statement}
+                    </p>
+                  </div>
+                  {currentProblem.inputDescription && (
+                    <div>
+                      <h4 className="font-medium mb-3 text-blue-400">Input:</h4>
+                      <p className="whitespace-pre-wrap text-gray-300 text-sm break-words">
+                        {currentProblem.inputDescription}
+                      </p>
+                    </div>
+                  )}
+                  {currentProblem.outputDescription && (
+                     <div>
+                       <h4 className="font-medium mb-3 text-green-400">Output:</h4>
+                       <p className="whitespace-pre-wrap text-gray-300 text-sm break-words">
+                         {currentProblem.outputDescription}
+                       </p>
+                     </div>
+                  )}
+                  {currentProblem.constraints && currentProblem.constraints.trim() !== "" && (
+                    <div>
+                      <h4 className="font-medium mb-3 text-purple-400">Constraints:</h4>
+                      <p className="whitespace-pre-wrap text-gray-300 text-sm break-words">
+                        {currentProblem.constraints}
+                      </p>
+                    </div>
+                  )}
+                  {getExampleTestCases().length > 0 && (
+                    <div>
+                      <h4 className="font-medium mb-4 text-cyan-400">Examples:</h4>
+                      <div className="space-y-4">
+                        {getExampleTestCases().map((testCase, index) => (
+                          <div key={index} className="space-y-3">
+                            <div className="font-medium text-white">Example {index + 1}:</div>
+                            <div>
+                              <div className="text-sm font-medium text-gray-400 mb-1">Input:</div>
+                              <div className="bg-gray-800/60 border border-gray-600 rounded-md p-3">
+                                <code className="text-sm text-gray-200 font-mono whitespace-pre-wrap break-words">
+                                  {testCase.testIn}
+                                </code>
+                              </div>
+                            </div>
+                            <div>
+                              <div className="text-sm font-medium text-gray-400 mb-1">Output:</div>
+                              <div className="bg-gray-800/60 border border-gray-600 rounded-md p-3">
+                                <code className="text-sm text-gray-200 font-mono whitespace-pre-wrap break-words">
+                                  {testCase.testOut}
+                                </code>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <p className="text-center text-gray-400">Loading problem or problem not available...</p>
               )}
-          </>
-        ) : (
-          <p style={{ textAlign: "center" }}>
-            Loading problem or problem not available...
-          </p>
-        )}
+            </ScrollArea>
+          </CardContent>
+        </Card>
+
+        {/* Code Editor and Terminal Card */}
+        <Card className="col-span-2 row-span-2 border-gray-700 overflow-hidden flex flex-col">
+          <CardHeader className="pb-3 flex-shrink-0">
+            <div className="flex justify-between items-center">
+              <CardTitle className="text-lg">Development Environment</CardTitle>
+              <div className="flex gap-3 items-center">
+                {submissionStatus && submissionStatus !== "Submitting to Judge..." && (
+                  <Badge
+                    variant={
+                      submissionStatus === "All tests passed!" ? "default"
+                      : submissionStatus.includes("Error") || submissionStatus.includes("failed") || submissionStatus.includes("No validators") ? "destructive"
+                      : "secondary"
+                    }
+                  >
+                    {submissionStatus}
+                  </Badge>
+                )}
+                <Button
+                  onClick={handleSubmitCode}
+                  disabled={!currentProblem || !code.trim() || isSubmitting}
+                  className="px-4 py-2"
+                >
+                  {isSubmitting ? "Running Tests..." : "Submit Code"}
+                </Button>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent className="flex-1 overflow-hidden">
+            <Tabs defaultValue="editor" className="h-full flex flex-col">
+              <TabsList className="grid w-full grid-cols-2 mb-3">
+                <TabsTrigger value="editor">Code Editor</TabsTrigger>
+                <TabsTrigger value="terminal">Terminal</TabsTrigger>
+              </TabsList>
+              <TabsContent value="editor" className="flex-1 overflow-hidden">
+                <div className="h-full border border-gray-600 rounded-lg overflow-hidden">
+                  <Editor
+                    height="100%"
+                    defaultLanguage="python"
+                    theme="vs-dark"
+                    value={code}
+                    onChange={(value) => setCode(value || "")}
+                    options={{
+                      fontSize: 14, minimap: { enabled: false }, scrollBeyondLastLine: false,
+                      automaticLayout: true, tabSize: 4, insertSpaces: true, wordWrap: "on",
+                      lineNumbers: "on", padding: { top: 16, bottom: 16 },
+                    }}
+                  />
+                </div>
+              </TabsContent>
+              <TabsContent value="terminal" className="flex-1 overflow-hidden">
+                <div className="h-full border border-gray-600 rounded-lg bg-black p-4 overflow-auto"> {/* Use overflow-auto */}
+                  <ScrollArea className="h-full"> {/* ScrollArea direct child */}
+                    <div className="font-mono text-sm space-y-1 whitespace-pre-wrap break-words">
+                      {terminalOutput.length === 0 ? (
+                        <p className="text-gray-400">Terminal output will appear here...</p>
+                      ) : (
+                        terminalOutput.map((line, index) => (
+                          <div
+                            key={index}
+                            className={`${
+                              line.includes("PASSED ✅") ? "text-green-400"
+                              : line.includes("FAILED ❌") || line.toLowerCase().includes("error") ? "text-red-400"
+                              : line.startsWith(">") ? "text-blue-400"
+                              : "text-gray-300"
+                            }`}
+                          >
+                            {line}
+                          </div>
+                        ))
+                      )}
+                    </div>
+                  </ScrollArea>
+                </div>
+              </TabsContent>
+            </Tabs>
+          </CardContent>
+        </Card>
+
+        {/* Players Card - ensure it's flex-col and CardContent is overflow-auto */}
+        <Card className="col-span-2 row-span-2 border-gray-700 overflow-hidden flex flex-col">
+            <CardHeader className="pb-3 flex-shrink-0">
+                <CardTitle className="text-lg">Players ({playersWithHP.length}/10)</CardTitle>
+            </CardHeader>
+            <CardContent className="flex-1 overflow-auto">
+                <ScrollArea className="h-full pr-2">
+                    <div className="space-y-3">
+                        {playersWithHP.map((player) => (
+                            <div
+                                key={player.id}
+                                className={`p-3 border rounded-lg transition-colors ${
+                                player.id === playerId
+                                    ? "bg-blue-900/30 border-blue-600"
+                                    : "bg-gray-800/30 border-gray-600"
+                                }`}
+                            >
+                                <div className="flex justify-between items-center">
+                                <div className="flex flex-col gap-1">
+                                    <span className="font-medium">
+                                    {player.name} {player.id === playerId ? "(You)" : ""}
+                                    </span>
+                                    <div className="flex items-center gap-2">
+                                    <HPBar hp={player.hp} />
+                                    <span className="text-xs text-gray-400">{player.hp} HP</span>
+                                    </div>
+                                </div>
+                                <Badge variant="outline" className="text-xs">
+                                    Rank #{Math.floor(Math.random() * 10) + 1}
+                                </Badge>
+                                </div>
+                            </div>
+                        ))}
+                        {Array.from({ length: Math.max(0, 10 - playersWithHP.length) }).map((_, index) => (
+                            <div key={`empty-${index}`} className="p-3 border border-dashed border-gray-600 rounded-lg opacity-50">
+                                <div className="flex justify-between items-center">
+                                <div className="flex flex-col gap-1">
+                                    <span className="text-gray-500">Empty Slot</span>
+                                    <div className="flex items-center gap-2">
+                                    <HPBar hp={0} />
+                                    <span className="text-xs text-gray-500">0 HP</span>
+                                    </div>
+                                </div>
+                                <Badge variant="outline" className="text-xs opacity-50">Waiting...</Badge>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </ScrollArea>
+            </CardContent>
+        </Card>
+
+
+        {/* Hand of Cards */}
+        <div className="col-span-2 row-span-2 border border-gray-700 rounded-lg overflow-hidden">
+          <div className="px-6 py-4 border-b border-gray-700">
+            <h3 className="text-lg font-semibold">Your Hand</h3>
+          </div>
+          <div className="flex-1 flex items-end justify-center p-8 overflow-auto"> {/* Added overflow-auto here too for safety */}
+            <div className="relative flex items-end justify-center">
+              {playerCards.map((card, index) => (
+                <div
+                  key={card.id}
+                  className="relative group cursor-pointer transition-all duration-300 ease-out"
+                  style={{
+                    transform: `
+                      translateX(${(index - (playerCards.length -1)/2) * 50}px) 
+                      rotate(${(index - (playerCards.length -1)/2) * 8}deg)
+                      translateY(${Math.abs(index - (playerCards.length -1)/2) * 12}px)
+                    `,
+                    zIndex: index + 1,
+                  }}
+                >
+                  <div
+                    className="w-32 h-48 border-2 border-gray-600 rounded-lg p-3 shadow-lg transition-all duration-300 group-hover:border-blue-500 group-hover:shadow-blue-500/20 group-hover:scale-110 group-hover:-translate-y-8 group-hover:rotate-0 group-hover:z-50 backdrop-blur-sm bg-gray-800/70" // Added bg
+                    style={{ transformOrigin: "bottom center" }}
+                  >
+                    <div className="flex justify-between items-start mb-2">
+                      <h4 className="text-sm font-bold text-white leading-tight">{card.name}</h4>
+                      <div className="bg-blue-600 text-white text-xs px-1.5 py-0.5 rounded-full font-bold">
+                        {card.cost}⚡
+                      </div>
+                    </div>
+                    <div className="flex-1 flex items-center justify-center mb-2">
+                      <div className="w-16 h-16 bg-gray-700/50 rounded-lg flex items-center justify-center">
+                        <span className="text-2xl">
+                          {card.name === "Attack" ? "⚔️" : card.name === "Shield" ? "🛡️" : card.name === "Heal" ? "❤️" : card.name === "Boost" ? "⚡" : "🔧"}
+                        </span>
+                      </div>
+                    </div>
+                    <p className="text-xs text-gray-300 text-center leading-tight">{card.description}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
       </div>
 
-      <div
-        style={{
-          marginTop: "30px",
-          padding: "20px",
-          border: "1px dashed #666",
-          minHeight: "200px",
-        }}
-      >
-        <p>Game Area - Problems and coding challenges will appear here.</p>
+      <div className="fixed top-4 right-4">
+        <Badge variant="outline" className="bg-gray-900/80 border-gray-600">
+          Room: {roomCode}
+        </Badge>
       </div>
     </div>
   );
@@ -1496,6 +1606,280 @@ function Button({
 export { Button, buttonVariants }
 -------------------- END button.tsx --------------------
 
+-------------------- badge.tsx (path: apps/web/components/ui/badge.tsx) --------------------
+import * as React from "react"
+import { Slot } from "@radix-ui/react-slot"
+import { cva, type VariantProps } from "class-variance-authority"
+
+import { cn } from "@/lib/utils"
+
+const badgeVariants = cva(
+  "inline-flex items-center justify-center rounded-md border px-2 py-0.5 text-xs font-medium w-fit whitespace-nowrap shrink-0 [&>svg]:size-3 gap-1 [&>svg]:pointer-events-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive transition-[color,box-shadow] overflow-hidden",
+  {
+    variants: {
+      variant: {
+        default:
+          "border-transparent bg-primary text-primary-foreground [a&]:hover:bg-primary/90",
+        secondary:
+          "border-transparent bg-secondary text-secondary-foreground [a&]:hover:bg-secondary/90",
+        destructive:
+          "border-transparent bg-destructive text-white [a&]:hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60",
+        outline:
+          "text-foreground [a&]:hover:bg-accent [a&]:hover:text-accent-foreground",
+      },
+    },
+    defaultVariants: {
+      variant: "default",
+    },
+  }
+)
+
+function Badge({
+  className,
+  variant,
+  asChild = false,
+  ...props
+}: React.ComponentProps<"span"> &
+  VariantProps<typeof badgeVariants> & { asChild?: boolean }) {
+  const Comp = asChild ? Slot : "span"
+
+  return (
+    <Comp
+      data-slot="badge"
+      className={cn(badgeVariants({ variant }), className)}
+      {...props}
+    />
+  )
+}
+
+export { Badge, badgeVariants }
+-------------------- END badge.tsx --------------------
+
+-------------------- tabs.tsx (path: apps/web/components/ui/tabs.tsx) --------------------
+"use client"
+
+import * as React from "react"
+import * as TabsPrimitive from "@radix-ui/react-tabs"
+
+import { cn } from "@/lib/utils"
+
+function Tabs({
+  className,
+  ...props
+}: React.ComponentProps<typeof TabsPrimitive.Root>) {
+  return (
+    <TabsPrimitive.Root
+      data-slot="tabs"
+      className={cn("flex flex-col gap-2", className)}
+      {...props}
+    />
+  )
+}
+
+function TabsList({
+  className,
+  ...props
+}: React.ComponentProps<typeof TabsPrimitive.List>) {
+  return (
+    <TabsPrimitive.List
+      data-slot="tabs-list"
+      className={cn(
+        "bg-muted text-muted-foreground inline-flex h-9 w-fit items-center justify-center rounded-lg p-[3px]",
+        className
+      )}
+      {...props}
+    />
+  )
+}
+
+function TabsTrigger({
+  className,
+  ...props
+}: React.ComponentProps<typeof TabsPrimitive.Trigger>) {
+  return (
+    <TabsPrimitive.Trigger
+      data-slot="tabs-trigger"
+      className={cn(
+        "data-[state=active]:bg-background dark:data-[state=active]:text-foreground focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:outline-ring dark:data-[state=active]:border-input dark:data-[state=active]:bg-input/30 text-foreground dark:text-muted-foreground inline-flex h-[calc(100%-1px)] flex-1 items-center justify-center gap-1.5 rounded-md border border-transparent px-2 py-1 text-sm font-medium whitespace-nowrap transition-[color,box-shadow] focus-visible:ring-[3px] focus-visible:outline-1 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:shadow-sm [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+        className
+      )}
+      {...props}
+    />
+  )
+}
+
+function TabsContent({
+  className,
+  ...props
+}: React.ComponentProps<typeof TabsPrimitive.Content>) {
+  return (
+    <TabsPrimitive.Content
+      data-slot="tabs-content"
+      className={cn("flex-1 outline-none", className)}
+      {...props}
+    />
+  )
+}
+
+export { Tabs, TabsList, TabsTrigger, TabsContent }
+-------------------- END tabs.tsx --------------------
+
+-------------------- scroll-area.tsx (path: apps/web/components/ui/scroll-area.tsx) --------------------
+"use client"
+
+import * as React from "react"
+import * as ScrollAreaPrimitive from "@radix-ui/react-scroll-area"
+
+import { cn } from "@/lib/utils"
+
+function ScrollArea({
+  className,
+  children,
+  ...props
+}: React.ComponentProps<typeof ScrollAreaPrimitive.Root>) {
+  return (
+    <ScrollAreaPrimitive.Root
+      data-slot="scroll-area"
+      className={cn("relative", className)}
+      {...props}
+    >
+      <ScrollAreaPrimitive.Viewport
+        data-slot="scroll-area-viewport"
+        className="focus-visible:ring-ring/50 size-full rounded-[inherit] transition-[color,box-shadow] outline-none focus-visible:ring-[3px] focus-visible:outline-1"
+      >
+        {children}
+      </ScrollAreaPrimitive.Viewport>
+      <ScrollBar />
+      <ScrollAreaPrimitive.Corner />
+    </ScrollAreaPrimitive.Root>
+  )
+}
+
+function ScrollBar({
+  className,
+  orientation = "vertical",
+  ...props
+}: React.ComponentProps<typeof ScrollAreaPrimitive.ScrollAreaScrollbar>) {
+  return (
+    <ScrollAreaPrimitive.ScrollAreaScrollbar
+      data-slot="scroll-area-scrollbar"
+      orientation={orientation}
+      className={cn(
+        "flex touch-none p-px transition-colors select-none",
+        orientation === "vertical" &&
+          "h-full w-2.5 border-l border-l-transparent",
+        orientation === "horizontal" &&
+          "h-2.5 flex-col border-t border-t-transparent",
+        className
+      )}
+      {...props}
+    >
+      <ScrollAreaPrimitive.ScrollAreaThumb
+        data-slot="scroll-area-thumb"
+        className="bg-border relative flex-1 rounded-full"
+      />
+    </ScrollAreaPrimitive.ScrollAreaScrollbar>
+  )
+}
+
+export { ScrollArea, ScrollBar }
+-------------------- END scroll-area.tsx --------------------
+
+-------------------- card.tsx (path: apps/web/components/ui/card.tsx) --------------------
+import * as React from "react"
+
+import { cn } from "@/lib/utils"
+
+function Card({ className, ...props }: React.ComponentProps<"div">) {
+  return (
+    <div
+      data-slot="card"
+      className={cn(
+        "bg-card text-card-foreground flex flex-col gap-6 rounded-xl border py-6 shadow-sm",
+        className
+      )}
+      {...props}
+    />
+  )
+}
+
+function CardHeader({ className, ...props }: React.ComponentProps<"div">) {
+  return (
+    <div
+      data-slot="card-header"
+      className={cn(
+        "@container/card-header grid auto-rows-min grid-rows-[auto_auto] items-start gap-1.5 px-6 has-data-[slot=card-action]:grid-cols-[1fr_auto] [.border-b]:pb-6",
+        className
+      )}
+      {...props}
+    />
+  )
+}
+
+function CardTitle({ className, ...props }: React.ComponentProps<"div">) {
+  return (
+    <div
+      data-slot="card-title"
+      className={cn("leading-none font-semibold", className)}
+      {...props}
+    />
+  )
+}
+
+function CardDescription({ className, ...props }: React.ComponentProps<"div">) {
+  return (
+    <div
+      data-slot="card-description"
+      className={cn("text-muted-foreground text-sm", className)}
+      {...props}
+    />
+  )
+}
+
+function CardAction({ className, ...props }: React.ComponentProps<"div">) {
+  return (
+    <div
+      data-slot="card-action"
+      className={cn(
+        "col-start-2 row-span-2 row-start-1 self-start justify-self-end",
+        className
+      )}
+      {...props}
+    />
+  )
+}
+
+function CardContent({ className, ...props }: React.ComponentProps<"div">) {
+  return (
+    <div
+      data-slot="card-content"
+      className={cn("px-6", className)}
+      {...props}
+    />
+  )
+}
+
+function CardFooter({ className, ...props }: React.ComponentProps<"div">) {
+  return (
+    <div
+      data-slot="card-footer"
+      className={cn("flex items-center px-6 [.border-t]:pt-6", className)}
+      {...props}
+    />
+  )
+}
+
+export {
+  Card,
+  CardHeader,
+  CardFooter,
+  CardTitle,
+  CardAction,
+  CardDescription,
+  CardContent,
+}
+-------------------- END card.tsx --------------------
+
 -------------------- lobby.tsx (path: apps/web/components/lobby.tsx) --------------------
 "use client";
 
@@ -1644,6 +2028,16 @@ import React, {
 export interface PlayerInfo {
   id: string;
   name: string;
+  hp?: number;
+}
+
+export interface TestCase {
+  title: string;
+  isTest: boolean;
+  testIn: string;
+  testOut: string;
+  isValidator: boolean;
+  needValidation?: boolean;
 }
 
 export interface ProblemDetails {
@@ -1652,6 +2046,7 @@ export interface ProblemDetails {
   inputDescription: string;
   outputDescription: string;
   constraints: string | null;
+  testCases?: TestCase[];
 }
 
 interface GameWebSocketState {
@@ -1727,6 +2122,7 @@ export const GameWebSocketProvider: React.FC<{ children: React.ReactNode }> = ({
               {
                 id: message.payload.playerId,
                 name: message.payload.playerName,
+                hp: 100,
               },
             ]);
             setIsGameStarted(false);
@@ -1743,6 +2139,7 @@ export const GameWebSocketProvider: React.FC<{ children: React.ReactNode }> = ({
             const selfPlayer: PlayerInfo = {
               id: message.payload.playerId,
               name: message.payload.playerName,
+              hp: 100,
             };
             const otherPlayers = (message.payload.playersInLobby ||
               []) as PlayerInfo[];
@@ -1760,13 +2157,16 @@ export const GameWebSocketProvider: React.FC<{ children: React.ReactNode }> = ({
             setCurrentProblem(null);
             break;
           case "playerJoinedLobby":
-            setPlayersInLobby((prevPlayers) => {
-              if (!prevPlayers.find((p) => p.id === message.payload.playerId)) {
+            setPlayersInLobby((prevPlayers: any) => {
+              if (
+                !prevPlayers.find((p: any) => p.id === message.payload.playerId)
+              ) {
                 return [
                   ...prevPlayers,
                   {
                     id: message.payload.playerId,
                     name: message.payload.playerName,
+                    hp: 100,
                   },
                 ];
               }
@@ -1785,10 +2185,25 @@ export const GameWebSocketProvider: React.FC<{ children: React.ReactNode }> = ({
             break;
           case "gameStarted":
             setIsGameStarted(true);
-            setPlayersInGame(message.payload.playersInGame as PlayerInfo[]);
+            const playersWithHp = (
+              message.payload.playersInGame as Omit<PlayerInfo, "hp">[]
+            ).map((player) => ({
+              ...player,
+              hp: 100,
+            }));
+            setPlayersInGame(playersWithHp);
             setPlayersInLobby([]);
             setCurrentProblem(null);
             setError(null);
+            break;
+          case "playerHpUpdate":
+            setPlayersInGame((prevPlayers) =>
+              prevPlayers.map((player) =>
+                player.id === message.payload.playerId
+                  ? { ...player, hp: message.payload.hp }
+                  : player
+              )
+            );
             break;
           case "newProblem":
             if (message.payload) {
@@ -1798,6 +2213,7 @@ export const GameWebSocketProvider: React.FC<{ children: React.ReactNode }> = ({
                 inputDescription: message.payload.inputDescription,
                 outputDescription: message.payload.outputDescription,
                 constraints: message.payload.constraints,
+                testCases: message.payload.testCases || [],
               });
             }
             break;
@@ -1861,13 +2277,11 @@ export const GameWebSocketProvider: React.FC<{ children: React.ReactNode }> = ({
         console.log(
           "Attempting to reconnect due to send message on closed socket..."
         );
-        // connect();
       }
     }
   };
 
   const setExternalRoomCodeCallback = useCallback((code: string | null) => {
-    // setRoomCode(null);
     if (code) {
       //maybe reset player id or sm
     } else {
@@ -1898,12 +2312,8 @@ export const GameWebSocketProvider: React.FC<{ children: React.ReactNode }> = ({
     setExternalRoomCode: setExternalRoomCodeCallback,
   };
 
-  const setExternalRoomCode = (code: string | null) => {
-    setRoomCode(code);
-  };
-
   return (
-    <GameWebSocketContext.Provider value={state as any}>
+    <GameWebSocketContext.Provider value={state}>
       {children}
     </GameWebSocketContext.Provider>
   );
@@ -2125,7 +2535,7 @@ namespace MyCsApi.Models
     public class ProblemTestCase
     {
         [JsonPropertyName("title")]
-        public JsonElement? Title { get; set; }
+        public string? Title { get; set; }
 
         [JsonPropertyName("isTest")]
         public bool IsTest { get; set; }
@@ -2190,7 +2600,7 @@ namespace MyCsApi.Models
         private readonly List<Player> _players = new();
         public IReadOnlyCollection<Player> Players => _players.AsReadOnly();
 
-        public GameRoom(string roomCode, string gameId, string hostPlayerId)
+        public GameRoom(string roomCode, string     gameId, string hostPlayerId)
         {
             RoomCode = roomCode;
             GameId = gameId;
@@ -2247,11 +2657,11 @@ namespace MyCsApi.Models
             : this("roomCreated", new RoomCreatedServerPayload(roomCode, playerId, playerName, gameId, hostPlayerId)) { }
     }
 
-    public record JoinSuccessServerPayload(string PlayerId, string PlayerName, string GameId, List<PlayerInfo> PlayersInLobby, string HostPlayerId);
+    public record JoinSuccessServerPayload(string RoomCode, string PlayerId, string PlayerName, string GameId, List<PlayerInfo> PlayersInLobby, string HostPlayerId);
     public record JoinSuccessServerMessage(string Type, JoinSuccessServerPayload Payload) : BaseWebSocketMessage(Type)
     {
-        public JoinSuccessServerMessage(string playerId, string playerName, string gameId, List<PlayerInfo> playersInLobby, string hostPlayerId)
-            : this("joinSuccess", new JoinSuccessServerPayload(playerId, playerName, gameId, playersInLobby, hostPlayerId)) { }
+        public JoinSuccessServerMessage(string roomCode, string playerId, string playerName, string gameId, List<PlayerInfo> playersInLobby, string hostPlayerId)
+            : this("joinSuccess", new JoinSuccessServerPayload(roomCode, playerId, playerName, gameId, playersInLobby, hostPlayerId)) { }
     }
 
     public record JoinFailedServerPayload(string Reason);
@@ -2298,11 +2708,11 @@ namespace MyCsApi.Models
             : this("newProblem", new NewProblemPayload(problemName, problemInfo)) { }
     }
 
-    public record PlayerStateUpdatePayload(string PlayerId, string[] cards);
+    public record PlayerStateUpdatePayload(string PlayerId, int Hp, string CardName);
     public record PlayerStateUpdateMessage(string Type, PlayerStateUpdatePayload Payload) : BaseWebSocketMessage(Type)
     {
-        public PlayerStateUpdateMessage(string playerId, string[] cards)
-            : this("playerStateUpdate", new PlayerStateUpdatePayload(playerId, cards)) { }
+        public PlayerStateUpdateMessage(string playerId, int hp, string cardName)
+            : this("playerStateUpdate", new PlayerStateUpdatePayload(playerId, hp, cardName)) { }
     }
 
     public record PlayerEliminatedPayload(string PlayerId, string PlayerName, string Reason);
@@ -2336,15 +2746,92 @@ namespace MyCsApi.Models
             : this("playerSolved", new PlayerSolvedPayload(playerName, playerId)) { }
     }
 
-    public record ProblemDetailsPayload(string Title, string Statement, string InputDescription, string OutputDescription, string Constraints);
+    public record ProblemDetailsPayload(string Title, string Statement, string InputDescription, string OutputDescription, string? Constraints, List<ProblemTestCase> TestCases);
 
     public record NewProblemServerMessage(string Type, ProblemDetailsPayload Payload) : BaseWebSocketMessage(Type)
     {
-        public NewProblemServerMessage(string title, string statement, string inputDesc, string outputDesc, string constraints)
-            : this("newProblem", new ProblemDetailsPayload(title, statement, inputDesc, outputDesc, constraints ?? string.Empty)) { }
+        public NewProblemServerMessage(string title, string statement, string inputDesc, string outputDesc, string constraints, List<ProblemTestCase> testCases)
+            : this("newProblem", new ProblemDetailsPayload(title, statement, inputDesc, outputDesc, constraints ?? string.Empty, testCases)) { }
+    }
+
+    public record SyntaxScramblePayload(string PlayerId, string TargetPlayerId, string CardName);
+
+    public record SyntaxScrambleMessage(string Type, SyntaxScramblePayload Payload) : BaseWebSocketMessage(Type)
+    {
+        public SyntaxScrambleMessage(string playerId, string targetPlayerId, string cardName)
+            : this("SyntaxScramble", new SyntaxScramblePayload(playerId, targetPlayerId, cardName)) { }
+    }
+
+    public record DamagePayload(string PlayerId, string TargetPlayerId, int Damage, string CardName);
+
+    public record DamageMessage(string Type, DamagePayload Payload) : BaseWebSocketMessage(Type)
+    {
+        public DamageMessage(string playerId, string targetPlayerId, int damage, string cardName)
+            : this("Damage", new DamagePayload(playerId, targetPlayerId, damage, cardName)) { }
+    }
+
+    public record DefendPayload(string PlayerId, int Defend, string CardName);
+
+    public record DefendMessage(string Type, DefendPayload Payload) : BaseWebSocketMessage(Type)
+    {
+        public DefendMessage(string playerId, int defense, string cardName)
+            : this("Defend", new DefendPayload(playerId, defense, cardName)) { }
+    }
+
+    public record BlockPayload(string PlayerId, string CardName);
+
+    public record BlockMessage(string Type, BlockPayload Payload) : BaseWebSocketMessage(Type)
+    {
+        public BlockMessage(string playerId, string cardName)
+            : this("Block", new BlockPayload(playerId, cardName)) { }
+    }
+
+    public record HealPayload(string PlayerId, int Hp, string CardName);
+
+    public record HealMessage(string Type, HealPayload Payload) : BaseWebSocketMessage(Type)
+    {
+        public HealMessage(string playerId, int hp, string cardName)
+            : this("Heal", new HealPayload(playerId, hp, cardName)) { }
+    }
+
+    public record VibeCodePayload(string PlayerId, string TargetPlayerId, string CardName);
+
+    public record VibeCodeMessage(string Type, VibeCodePayload Payload) : BaseWebSocketMessage(Type)
+    {
+        public VibeCodeMessage(string playerId, string targetPlayerId, string cardName)
+            : this("VibeCode", new VibeCodePayload(playerId, targetPlayerId, cardName)) { }
+    }
+
+    public record CompilerAttackPayload(string PlayerId, string TargetPlayerId, string CardName);
+
+    public record CompilerAttackMessage(string Type, CompilerAttackPayload Payload) : BaseWebSocketMessage(Type)
+    {
+        public CompilerAttackMessage(string playerId, string targetPlayerId, string cardName)
+            : this("compilerAttack", new CompilerAttackPayload(playerId, targetPlayerId, cardName)) { }
+    }
+
+    public record LeakPayload(string PlayerId, string CardName);
+
+    public record LeakMessage(string Type, LeakPayload Payload) : BaseWebSocketMessage(Type)
+    {
+        public LeakMessage(string playerId, string cardName)
+            : this("leak", new LeakPayload(playerId, cardName)) { }
     }
 }
 -------------------- END WebSocketMessages.cs --------------------
+
+-------------------- Judge0Settings.cs (path: apps/api/Models/Judge0Settings.cs) --------------------
+namespace MyCsApi.Models
+{
+    public class Judge0Settings
+    {
+        public string ApiUrl { get; set; } = string.Empty;
+        public int DefaultPythonLanguageId { get; set; } = 71;
+        public string? ApiKey { get; set; }
+        public string? ApiHost { get; set; }
+    }
+}
+-------------------- END Judge0Settings.cs --------------------
 
 -------------------- package.json (path: apps/api/package.json) --------------------
 {
@@ -2384,6 +2871,171 @@ public class GameController : ControllerBase
 }
 -------------------- END GameController.cs --------------------
 
+-------------------- JudgeController.cs (path: apps/api/Controllers/JudgeController.cs) --------------------
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using MyCsApi.Models;
+using MyCsApi.Services;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+
+namespace MyCsApi.Controllers
+{
+    [ApiController]
+    [Route("api/[controller]")]
+    public class JudgeController : ControllerBase
+    {
+        private readonly IJudgeService _judgeService;
+        private readonly Judge0Settings _judge0Settings;
+        private readonly ILogger<JudgeController> _logger;
+
+        public JudgeController(IJudgeService judgeService, IOptions<Judge0Settings> judge0Settings, ILogger<JudgeController> logger)
+        {
+            _judgeService = judgeService;
+            _judge0Settings = judge0Settings.Value;
+            _logger = logger;
+        }
+
+        [HttpPost("submit")]
+        public async Task<IActionResult> SubmitCode([FromBody] CodeSubmissionRequest request)
+        {
+            if (request == null || string.IsNullOrWhiteSpace(request.SourceCode) || request.TestCases == null)
+            {
+                return BadRequest(new { message = "Invalid submission request." });
+            }
+
+            _logger.LogInformation($"Received code submission. Language ID: {request.LanguageId}. Test cases: {request.TestCases.Count}");
+
+            var results = new List<TestCaseExecutionResult>();
+            bool allPassed = true;
+            string? overallCompilationOutput = null;
+            string? overallErrorOutput = null;
+
+
+            foreach (var testCase in request.TestCases)
+            {
+                _logger.LogInformation($"Executing test case: {testCase.Title}");
+                var judgeResult = await _judgeService.SubmitCodeAsync(
+                    request.SourceCode,
+                    request.LanguageId > 0 ? request.LanguageId : _judge0Settings.DefaultPythonLanguageId,
+                    testCase.Stdin,
+                    testCase.ExpectedOutput
+                );
+
+                var caseResult = new TestCaseExecutionResult
+                {
+                    Title = testCase.Title,
+                    ExpectedOutput = testCase.ExpectedOutput,
+                    ActualOutput = judgeResult?.Stdout?.TrimEnd('\n', '\r'),
+                    Status = judgeResult?.Status?.Description ?? "Unknown Error",
+                    Judge0StatusId = judgeResult?.Status?.Id ?? 0,
+                    ErrorMessage = judgeResult?.Stderr ?? judgeResult?.CompileOutput ?? judgeResult?.ErrorDetails,
+                    Time = judgeResult?.Time,
+                    Memory = judgeResult?.Memory
+                };
+
+                if (judgeResult?.CompileOutput != null && overallCompilationOutput == null)
+                {
+                    overallCompilationOutput = judgeResult.CompileOutput;
+                }
+                if (judgeResult?.Stderr != null && string.IsNullOrEmpty(caseResult.ActualOutput)) // Prioritize stderr if stdout is empty
+                {
+                    overallErrorOutput = string.IsNullOrEmpty(overallErrorOutput) ? judgeResult.Stderr : $"{overallErrorOutput}\n{judgeResult.Stderr}";
+                }
+
+
+                if (judgeResult != null && judgeResult.Status != null)
+                {
+                    if (judgeResult.Status.Id == 3) // Accepted
+                    {
+                        var actual = caseResult.ActualOutput ?? "";
+                        var expected = testCase.ExpectedOutput?.TrimEnd('\n', '\r') ?? "";
+                        caseResult.Passed = actual.Equals(expected);
+                    }
+                    else
+                    {
+                        caseResult.Passed = false;
+                    }
+                }
+                else
+                {
+                    caseResult.Passed = false;
+                    caseResult.Status = judgeResult?.ErrorDetails ?? "Failed to get result from Judge0";
+                }
+
+                if (!caseResult.Passed) allPassed = false;
+                results.Add(caseResult);
+
+                if (judgeResult?.Status?.Id == 6)
+                {
+                    overallCompilationOutput = judgeResult.CompileOutput ?? "Compilation failed.";
+                    allPassed = false;
+                    break;
+                }
+                if (judgeResult?.Status?.Id > 6 && judgeResult?.Status?.Id <= 13)
+                {
+                    overallErrorOutput = string.IsNullOrEmpty(overallErrorOutput) ? (judgeResult.Stderr ?? judgeResult.Status.Description) : $"{overallErrorOutput}\n{judgeResult.Stderr ?? judgeResult.Status.Description}";
+                    allPassed = false;
+                }
+            }
+
+            string overallStatus;
+            if (overallCompilationOutput != null) overallStatus = "Compilation Error";
+            else if (overallErrorOutput != null && !results.Any(r => r.Passed)) overallStatus = "Runtime Error";
+            else if (allPassed) overallStatus = "All tests passed!";
+            else if (results.Any(r => r.Passed)) overallStatus = "Some tests failed";
+            else overallStatus = "All tests failed";
+
+
+            return Ok(new CodeSubmissionResult
+            {
+                Results = results,
+                OverallStatus = overallStatus,
+                CompilationOutput = overallCompilationOutput,
+                ErrorOutput = overallErrorOutput
+            });
+        }
+    }
+
+    public class CodeSubmissionRequest
+    {
+        public string SourceCode { get; set; } = string.Empty;
+        public int LanguageId { get; set; }
+        public List<ApiProblemTestCase> TestCases { get; set; } = new();
+    }
+
+    public class ApiProblemTestCase
+    {
+        public string Title { get; set; } = string.Empty;
+        public string? Stdin { get; set; }
+        public string? ExpectedOutput { get; set; }
+    }
+
+    public class CodeSubmissionResult
+    {
+        public List<TestCaseExecutionResult> Results { get; set; } = new();
+        public string OverallStatus { get; set; } = string.Empty;
+        public string? CompilationOutput { get; set; }
+        public string? ErrorOutput { get; set; }
+    }
+
+    public class TestCaseExecutionResult
+    {
+        public string Title { get; set; } = string.Empty;
+        public bool Passed { get; set; }
+        public string? ActualOutput { get; set; }
+        public string? ExpectedOutput { get; set; }
+        public string Status { get; set; } = string.Empty;
+        public int Judge0StatusId { get; set; }
+        public string? ErrorMessage { get; set; }
+        public string? Time { get; set; }
+        public int? Memory { get; set; }
+    }
+}
+-------------------- END JudgeController.cs --------------------
+
 -------------------- MyCsApi.csproj (path: apps/api/MyCsApi.csproj) --------------------
 <Project Sdk="Microsoft.NET.Sdk.Web">
 
@@ -2398,7 +3050,8 @@ public class GameController : ControllerBase
   </ItemGroup>
 
   <ItemGroup>
-    <Content Update="problems.json">  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    <Content Update="problems.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
 
@@ -2440,6 +3093,9 @@ report.[0-9]_.[0-9]_.[0-9]_.[0-9]_.json
 
 # Finder (MacOS) folder config
 .DS_Store
+
+*.AssemblyInfo.cs
+*.cache
 -------------------- END .gitignore --------------------
 
 -------------------- Item.cs (path: apps/api/Item.cs) --------------------
@@ -2526,6 +3182,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using MyCsApi.Services;
 using MyCsApi.WebSockets;
+using Microsoft.Extensions.Options;
+using MyCsApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -2542,6 +3200,8 @@ builder.Services.AddCors(options =>
     });
 });
 
+builder.Services.Configure<Judge0Settings>(builder.Configuration.GetSection("Judge0"));
+
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 
@@ -2549,6 +3209,8 @@ builder.Services.AddSingleton<IRoomManager, RoomManager>();
 builder.Services.AddSingleton<ICardManager, CardManager>();
 builder.Services.AddSingleton<IProblemService, ProblemService>();
 builder.Services.AddSingleton<WebSocketMessageHandler>();
+
+builder.Services.AddHttpClient<IJudgeService, JudgeService>();
 
 
 var app = builder.Build();
@@ -2593,6 +3255,12 @@ app.Run();
       "Microsoft.AspNetCore": "Warning"
     }
   },
+  "Judge0": {
+    "ApiUrl": "http://20.84.52.40:2358",
+    "DefaultPythonLanguageId": 71,
+    "ApiKey": null,
+    "ApiHost": null
+  },
   "AllowedHosts": "*"
 }
 -------------------- END appsettings.json --------------------
@@ -2636,25 +3304,62 @@ public class CardManager : ICardManager
         _logger = logger;
         _players = roomManager.GetPlayers();
     }
+    
+    private static readonly JsonSerializerOptions _jsonSerializerOptions = new()
+    {
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+    };
 
     public async Task UseCardAsync(WebSocket webSocket, string playerId, string cardName, string targetPlayerId)
     {
         switch (cardName)
         {
             case "Attack":
-                await SendPlayerUpdateMessageAsync(webSocket, playerId, targetPlayerId, 20, cardName);
+                var stateMessage = new DamageMessage(playerId, targetPlayerId, 20, cardName);
+                await SendMessageAsync(webSocket, stateMessage);
                 break;
-            default:
+            case "SyntaxScramble":
+                var scrambleMessage = new SyntaxScrambleMessage(playerId, targetPlayerId, cardName);
+                await SendMessageAsync(webSocket, scrambleMessage);
                 break;
+            case "Casino":
+                var casinoMessage = new DamageMessage(playerId, targetPlayerId, Random.Shared.Next(30), cardName);
+                await SendMessageAsync(webSocket, casinoMessage);
+                break;
+            case "CompilerAttack":
+                var compilerMessage = new CompilerAttackMessage(playerId, targetPlayerId, cardName);
+                await SendMessageAsync(webSocket, compilerMessage);
+                break;
+            case "Leak":
+                var leakMessage = new LeakMessage(playerId, targetPlayerId);
+                await SendMessageAsync(webSocket, leakMessage);
+                break;
+            case "Defend":
+                var defendMessage = new DefendMessage(playerId, 15, cardName);
+                await SendMessageAsync(webSocket, defendMessage);
+                break;
+            case "Block":
+                var blockMessage = new BlockMessage(playerId, cardName);
+                await SendMessageAsync(webSocket, blockMessage);
+                break;
+            case "Heal":
+                var healMessage = new HealMessage(playerId, 15, cardName);
+                await SendMessageAsync(webSocket, healMessage);
+                break;
+            case "VibeCode":
+                var vibeCodeMessage = new VibeCodeMessage(playerId, targetPlayerId, cardName);
+                await SendMessageAsync(webSocket, vibeCodeMessage);
+                break;
+            
         }
         
     }
-    
-    private async Task SendPlayerUpdateMessageAsync(WebSocket webSocket, string playerId, string targetPlayerId, int dHp, string cardName)
+
+    private async Task SendMessageAsync(WebSocket webSocket, object message)
     {
         if (webSocket.State == WebSocketState.Open)
         {
-            var messageJson = $"{{\"playerId\": \"{targetPlayerId}\", \"hp\": \"{dHp}\", \"cardName\": \"{cardName}\"}}";
+            var messageJson = JsonSerializer.Serialize(message, _jsonSerializerOptions);
             var bytes = Encoding.UTF8.GetBytes(messageJson);
             await webSocket.SendAsync(new ArraySegment<byte>(bytes), WebSocketMessageType.Text, true, CancellationToken.None);
             _logger.LogDebug($"Sent message: {messageJson}");
@@ -2843,6 +3548,7 @@ namespace MyCsApi.Services
             _logger.LogInformation($"Player {playerName} ({playerId}) joined room {roomCode}. GameID: {room.GameId}");
 
             var joinSuccessResponse = new JoinSuccessServerMessage(
+                room.RoomCode,
                 playerId,
                 playerName,
                 room.GameId,
@@ -2895,12 +3601,14 @@ namespace MyCsApi.Services
             if (problem != null && problem.LastVersion?.Data != null)
             {
                 var problemData = problem.LastVersion.Data;
+                var testCasesForMessage = problemData.TestCases ?? new List<ProblemTestCase>();
                 var newProblemMessage = new NewProblemServerMessage(
                     problem.Title ?? "Untitled Problem", // Provide default if null
                     problemData.Statement ?? "No statement provided.", // Provide default if null
                     problemData.InputDescription ?? "No input description provided.", // Provide default if null
                     problemData.OutputDescription ?? "No output description provided.", // Provide default if null
-                    problemData.Constraints // This is handled by the constructor (constraints ?? string.Empty)
+                    problemData.Constraints, // This is handled by the constructor (constraints ?? string.Empty)
+                    testCasesForMessage
                 );
                 await BroadcastMessageToRoomAsync(room.RoomCode, newProblemMessage);
                 _logger.LogInformation($"Sent problem '{problem.Title ?? "Untitled Problem"}' to room {room.RoomCode}");
@@ -2960,6 +3668,141 @@ namespace MyCsApi.Services
     }
 }
 -------------------- END RoomManager.cs --------------------
+
+-------------------- JudgeService.cs (path: apps/api/Services/JudgeService.cs) --------------------
+using System.Net.Http;
+using System.Net.Http.Json;
+using System.Text;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using MyCsApi.Models;
+
+namespace MyCsApi.Services
+{
+    public interface IJudgeService
+    {
+        Task<JudgeSubmissionResult?> SubmitCodeAsync(string sourceCode, int languageId, string? stdin, string? expectedOutput);
+    }
+
+    public class JudgeService : IJudgeService
+    {
+        private readonly HttpClient _httpClient;
+        private readonly Judge0Settings _judge0Settings;
+        private readonly ILogger<JudgeService> _logger;
+        private static readonly JsonSerializerOptions _jsonOptions = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
+
+        public JudgeService(HttpClient httpClient, IOptions<Judge0Settings> judge0Settings, ILogger<JudgeService> logger)
+        {
+            _httpClient = httpClient;
+            _judge0Settings = judge0Settings.Value;
+            _logger = logger;
+
+            if (!string.IsNullOrEmpty(_judge0Settings.ApiKey))
+            {
+                _httpClient.DefaultRequestHeaders.Add("X-RapidAPI-Key", _judge0Settings.ApiKey);
+            }
+            if (!string.IsNullOrEmpty(_judge0Settings.ApiHost))
+            {
+                _httpClient.DefaultRequestHeaders.Add("X-RapidAPI-Host", _judge0Settings.ApiHost);
+            }
+        }
+
+        public async Task<JudgeSubmissionResult?> SubmitCodeAsync(string sourceCode, int languageId, string? stdin, string? expectedOutput)
+        {
+            var submissionRequest = new JudgeSubmissionRequest
+            {
+                SourceCode = sourceCode,
+                LanguageId = languageId,
+                Stdin = stdin,
+                ExpectedOutput = expectedOutput // Judge0 can compare this or you can do it manually
+            };
+
+            // Use wait=true to get the result directly, simplifies logic by avoiding polling
+            var judge0Url = $"{_judge0Settings.ApiUrl.TrimEnd('/')}/submissions?base64_encoded=false&wait=true";
+            _logger.LogInformation($"Submitting to Judge0: {judge0Url}");
+
+            try
+            {
+                HttpResponseMessage response = await _httpClient.PostAsJsonAsync(judge0Url, submissionRequest, _jsonOptions);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    var errorContent = await response.Content.ReadAsStringAsync();
+                    _logger.LogError($"Judge0 API request failed with status {response.StatusCode}: {errorContent}");
+                    return new JudgeSubmissionResult { Status = new JudgeStatus { Description = "Error communicating with Judge0" }, ErrorDetails = errorContent };
+                }
+
+                var result = await response.Content.ReadFromJsonAsync<JudgeSubmissionResult>(_jsonOptions);
+                if (result != null)
+                {
+                    _logger.LogInformation($"Judge0 Result ({result.Status?.Description}): STDOUT: {result.Stdout}, STDERR: {result.Stderr}, Compile Output: {result.CompileOutput}");
+                }
+                return result;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Exception occurred while submitting to Judge0.");
+                return new JudgeSubmissionResult { Status = new JudgeStatus { Description = "Exception during Judge0 submission" }, ErrorDetails = ex.Message };
+            }
+        }
+
+
+    }
+
+    public class JudgeSubmissionRequest
+    {
+        [JsonPropertyName("source_code")]
+        public string SourceCode { get; set; } = string.Empty;
+
+        [JsonPropertyName("language_id")]
+        public int LanguageId { get; set; }
+
+        [JsonPropertyName("stdin")]
+        public string? Stdin { get; set; }
+
+        [JsonPropertyName("expected_output")]
+        public string? ExpectedOutput { get; set; }
+    }
+
+    public class JudgeSubmissionResult
+    {
+        [JsonPropertyName("stdout")]
+        public string? Stdout { get; set; }
+
+        [JsonPropertyName("stderr")]
+        public string? Stderr { get; set; }
+
+        [JsonPropertyName("compile_output")]
+        public string? CompileOutput { get; set; }
+
+        [JsonPropertyName("message")] // For base64 encoded response messages
+        public string? Message { get; set; }
+
+        [JsonPropertyName("status")]
+        public JudgeStatus? Status { get; set; }
+
+        [JsonPropertyName("time")]
+        public string? Time { get; set; } // Execution time in seconds
+
+        [JsonPropertyName("memory")]
+        public int? Memory { get; set; } // Memory in kilobytes
+
+        public string? ErrorDetails { get; set; } // Custom field for our error tracking
+    }
+
+    public class JudgeStatus
+    {
+        [JsonPropertyName("id")]
+        public int Id { get; set; }
+
+        [JsonPropertyName("description")]
+        public string Description { get; set; } = string.Empty;
+    }
+}
+-------------------- END JudgeService.cs --------------------
 
 -------------------- WebSocketMessageHandler.cs (path: apps/api/WebSockets/WebSocketMessageHandler.cs) --------------------
 using System;

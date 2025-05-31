@@ -6,6 +6,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using MyCsApi.Services;
 using MyCsApi.WebSockets;
+using Microsoft.Extensions.Options;
+using MyCsApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -22,6 +24,8 @@ builder.Services.AddCors(options =>
     });
 });
 
+builder.Services.Configure<Judge0Settings>(builder.Configuration.GetSection("Judge0"));
+
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 
@@ -29,6 +33,8 @@ builder.Services.AddSingleton<IRoomManager, RoomManager>();
 builder.Services.AddSingleton<ICardManager, CardManager>();
 builder.Services.AddSingleton<IProblemService, ProblemService>();
 builder.Services.AddSingleton<WebSocketMessageHandler>();
+
+builder.Services.AddHttpClient<IJudgeService, JudgeService>();
 
 
 var app = builder.Build();

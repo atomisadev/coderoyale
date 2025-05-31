@@ -61,12 +61,12 @@ namespace MyCsApi.Models
             : this("gameStarted", new GameStartedServerPayload(playersInGame)) { }
     }
 
-    
+
     public record UseCardPayload(string CardName, string PlayerId, string TargetPlayerId);
 
     public record UseCardMessage(string Type, UseCardPayload Payload) : BaseWebSocketMessage(Type)
     {
-        public UseCardMessage(string cardName, string playerId, string targetPlayerId) 
+        public UseCardMessage(string cardName, string playerId, string targetPlayerId)
             : this("useCard", new UseCardPayload(cardName, playerId, targetPlayerId)) { }
     }
 
@@ -116,14 +116,14 @@ namespace MyCsApi.Models
             : this("playerSolved", new PlayerSolvedPayload(playerName, playerId)) { }
     }
 
-    public record ProblemDetailsPayload(string Title, string Statement, string InputDescription, string OutputDescription, string Constraints);
+    public record ProblemDetailsPayload(string Title, string Statement, string InputDescription, string OutputDescription, string? Constraints, List<ProblemTestCase> TestCases);
 
     public record NewProblemServerMessage(string Type, ProblemDetailsPayload Payload) : BaseWebSocketMessage(Type)
     {
-        public NewProblemServerMessage(string title, string statement, string inputDesc, string outputDesc, string constraints)
-            : this("newProblem", new ProblemDetailsPayload(title, statement, inputDesc, outputDesc, constraints ?? string.Empty)) { }
+        public NewProblemServerMessage(string title, string statement, string inputDesc, string outputDesc, string constraints, List<ProblemTestCase> testCases)
+            : this("newProblem", new ProblemDetailsPayload(title, statement, inputDesc, outputDesc, constraints ?? string.Empty, testCases)) { }
     }
-    
+
     public record SyntaxScramblePayload(string PlayerId, string TargetPlayerId, string CardName);
 
     public record SyntaxScrambleMessage(string Type, SyntaxScramblePayload Payload) : BaseWebSocketMessage(Type)
@@ -131,7 +131,7 @@ namespace MyCsApi.Models
         public SyntaxScrambleMessage(string playerId, string targetPlayerId, string cardName)
             : this("SyntaxScramble", new SyntaxScramblePayload(playerId, targetPlayerId, cardName)) { }
     }
-    
+
     public record DamagePayload(string PlayerId, string TargetPlayerId, int Damage, string CardName);
 
     public record DamageMessage(string Type, DamagePayload Payload) : BaseWebSocketMessage(Type)
@@ -139,7 +139,7 @@ namespace MyCsApi.Models
         public DamageMessage(string playerId, string targetPlayerId, int damage, string cardName)
             : this("Damage", new DamagePayload(playerId, targetPlayerId, damage, cardName)) { }
     }
-    
+
     public record DefendPayload(string PlayerId, int Defend, string CardName);
 
     public record DefendMessage(string Type, DefendPayload Payload) : BaseWebSocketMessage(Type)
@@ -147,7 +147,7 @@ namespace MyCsApi.Models
         public DefendMessage(string playerId, int defense, string cardName)
             : this("Defend", new DefendPayload(playerId, defense, cardName)) { }
     }
-    
+
     public record BlockPayload(string PlayerId, string CardName);
 
     public record BlockMessage(string Type, BlockPayload Payload) : BaseWebSocketMessage(Type)
@@ -155,7 +155,7 @@ namespace MyCsApi.Models
         public BlockMessage(string playerId, string cardName)
             : this("Block", new BlockPayload(playerId, cardName)) { }
     }
-    
+
     public record HealPayload(string PlayerId, int Hp, string CardName);
 
     public record HealMessage(string Type, HealPayload Payload) : BaseWebSocketMessage(Type)
@@ -163,7 +163,7 @@ namespace MyCsApi.Models
         public HealMessage(string playerId, int hp, string cardName)
             : this("Heal", new HealPayload(playerId, hp, cardName)) { }
     }
-    
+
     public record VibeCodePayload(string PlayerId, string TargetPlayerId, string CardName);
 
     public record VibeCodeMessage(string Type, VibeCodePayload Payload) : BaseWebSocketMessage(Type)
@@ -171,7 +171,7 @@ namespace MyCsApi.Models
         public VibeCodeMessage(string playerId, string targetPlayerId, string cardName)
             : this("VibeCode", new VibeCodePayload(playerId, targetPlayerId, cardName)) { }
     }
-    
+
     public record CompilerAttackPayload(string PlayerId, string TargetPlayerId, string CardName);
 
     public record CompilerAttackMessage(string Type, CompilerAttackPayload Payload) : BaseWebSocketMessage(Type)
@@ -179,7 +179,7 @@ namespace MyCsApi.Models
         public CompilerAttackMessage(string playerId, string targetPlayerId, string cardName)
             : this("compilerAttack", new CompilerAttackPayload(playerId, targetPlayerId, cardName)) { }
     }
-    
+
     public record LeakPayload(string PlayerId, string CardName);
 
     public record LeakMessage(string Type, LeakPayload Payload) : BaseWebSocketMessage(Type)
